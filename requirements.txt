@@ -6,3 +6,9 @@ google-api-python-client
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
+httplib2
+oauth2client
+base64
+email
+apiclient
+mimetypes
