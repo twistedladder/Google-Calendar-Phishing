@@ -10,4 +10,3 @@ httplib2
 oauth2client
 email
 apiclient
-mimetypes
