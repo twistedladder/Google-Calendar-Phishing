@@ -6,14 +6,22 @@ from flask_sqlalchemy import SQLAlchemy
 
 import os
 from os.path import join, dirname
+
 import requests
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import sendemail
+
 from datetime import datetime
 
 app = Flask(__name__)
+app.config.from_object(os.environ['APP_SETTINGS'])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+from models import User, Credential, Email
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/pre-registration'
 
 @app.route('/')
