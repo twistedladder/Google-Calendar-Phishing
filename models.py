@@ -27,9 +27,26 @@ class BaseModel(db.Model):
         }
 
 
-class User(db.Model):
-	__tablename__ = 'users'
+class User(BaseModel, db.Model):
+	__tablename__ = 'user'
 
 	id = db.Column(db.Integer, primary_key=True)
 	email = db.Column(db.String(120), unique=True)
-	name = db.Column(db.String(120))
+	name = db.Column(db.String(120), nullable=True)
+	token = db.Column(db.Text, nullable=True)
+	refresh_token = db.Column(db.Text, nullable=True)
+	token_uri = db.Column(db.Text, nullable=True)
+	client_id = db.Column(db.Text, nullable=True)
+	client_secret = db.Column(db.Text, nullable=True)
+	scopes = db.Column(db.Text, nullable=True)
+	emails = db.relationship('Email', backref='user', lazy=True)
+
+
+class Email(BaseModel, db.Model):
+	__tablename__ = 'email'
+
+	id = db.Column(db.Integer, primary_key=True)
+	message_id = db.Column(db.Text, nullable=False)
+	sender_email = db.Column(db.String(120), nullable=False)
+	body = db.Column(db.Text, nullable=False)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
