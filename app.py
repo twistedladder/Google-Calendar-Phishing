@@ -2,6 +2,8 @@ from flask import Flask
 from flask import jsonify
 from flask import request
 from flask import render_template
+from flask_sqlalchemy import SQLAlchemy
+
 import os
 from os.path import join, dirname
 import requests
@@ -10,7 +12,9 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import sendemail
 from datetime import datetime
+
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/pre-registration'
 
 @app.route('/')
 def homepage():
@@ -48,4 +52,4 @@ if __name__ == '__main__':
 
     # Specify a hostname and port that are set as a valid redirect URI
     # for your API project in the Google API Console.
-    app.run('localhost', 8080, debug=True)
+    app.run()

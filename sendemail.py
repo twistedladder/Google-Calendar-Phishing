@@ -11,6 +11,7 @@ from email.mime.text import MIMEText
 from apiclient import errors, discovery
 import mimetypes
 import string
+from string import Template
 
 SCOPES = ' '.join(['https://www.googleapis.com/auth/gmail.readonly', 
           'https://www.googleapis.com/auth/contacts.readonly',
@@ -26,8 +27,7 @@ def add_one_month(dt0):
     return dt3
 
 def get_credential_store():
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
+    credential_dir = './.credentials'
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir,
