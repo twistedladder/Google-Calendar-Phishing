@@ -29,12 +29,13 @@ def hack_form():
         sender_name = request.form.get('sender_name')
         recipient_email = request.form.get('recipient_email')
         
-        return send_email(sender_name, sender_email, recipient_email)
+        return send_initial_email(sender_name, sender_email, recipient_email)
     else:
         return render_template('hack_form.html')
     
 
-def send_email(sender, recipient):
+def send_initial_email(sender_name, sender_email, recipient_email):
+    sendemail.SendMessage(sender_name, sender_email, recipient_email);
     return render_template('hack_form.html')    
 
 
