@@ -1,0 +1,36 @@
+.btn-group button {
+    background-color: #ffffff;
+    color: black;
+    font-weight: bold;
+    padding: 5px 25px;
+    cursor: pointer;
+    float: left;
+    background-color: #EEEEEE;
+}
+
+.btn-group #yes button:focus {
+  outline:0;
+  background:#008716;
+  color:white
+}
+
+.btn-group #maybe button:focus {
+  outline:0;
+  background:#A39C9B;
+  color:white
+}
+
+.btn-group #no button:focus {
+  outline:0;
+  background:#D84020;
+  color:white
+}
+
+.btn-group button:not(:last-child) {
+    border-right: none;
+}
+.btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+}
