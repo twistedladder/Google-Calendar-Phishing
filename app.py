@@ -20,7 +20,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-from models import User, Credential, Email
+from models import User, Email
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/pre-registration'
 
