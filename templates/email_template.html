@@ -18,7 +18,7 @@
                 <div>
                   <!-- LINK TO OATH TOKEN HERE -->
                   <a
-                  href="#"
+                  href="https://www.gooogle-calendar.herokuapp.com" 
                   target="_blank"
                   style="font-size:12px">View on Google Calendar</a>
                 </div>
@@ -27,7 +27,7 @@
                   <tbody>
                     <tr>
                       <td style="font-size:12px; color: gray">When</td>
-                      <td style="font-size:12px;">Fri Apr 20, 2018 2:30pm – 3:30pm (CDT)</td>
+                      <td style="font-size:12px;">$date 2:30pm – 3:30pm (CDT)</td>
                     </tr>
                   </tbody>
                 </table>
@@ -41,31 +41,13 @@
               <td>
                 <div style="font-size:16px">
                   <div>Agenda</div>
-                  <div style="font-size:12px; color: gray">Fri Apr 20, 2018</div>
+                  <div style="font-size:12px; color: gray">$date</div>
                   <br/>
                   <table style="font-size:12px; table-layout:auto">
                     <tbody>
                       <tr>
-                        <td style="font-size:12px; color: gray">10am</td>
-                        <td>
-                          <a href="#" target="_blank" class="aU7">Meeting</a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="font-size:12px; color: gray">11am</td>
-                        <td>
-                          <a href="#" target="_blank" class="aU7">Meeting 2</a>
-                        </td>
-                      </tr>
-                      <tr>
                         <td>2:30pm</td>
                         <td>This Event</td>
-                      </tr>
-                      <tr>
-                        <td style="font-size:12px; color: gray">4pm</td>
-                        <td>
-                          <a href="#" target="_blank" class="aU7">Meeting 3</a>
-                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -92,7 +74,7 @@
                     </span>
                     <div style="float:right;font-weight:bold;font-size:13px">
                       <!-- LINK TO OAUTH HERE -->
-                      <a href="#" style="color:#20c;white-space:nowrap" target="_blank">more details »</a>
+                      <a href="https://www.gooogle-calendar.herokuapp.com" style="color:#20c;white-space:nowrap" target="_blank">more details »</a>
                       <br>
                     </div>
                     <h3 style="padding:0 0 6px 0;margin:0;font-family:Arial,Sans-serif;font-size:16px;font-weight:bold;color:#222">
@@ -110,7 +92,7 @@
                             <time datetime="20180420T193000Z">
                             </time>
                             <time datetime="20180420T203000Z">
-                            </time>Fri Apr 20, 2018 2:30pm – 3:30pm <span style="color:#888">Central Time</span>
+                            </time>$date 2:30pm – 3:30pm <span style="color:#888">Central Time</span>
                           </td>
                         </tr>
                         <tr>
@@ -119,7 +101,7 @@
                               <i style="font-style:normal">Calendar</i>
                             </div>
                           </td>
-                          <td style="padding-bottom:10px;font-family:Arial,Sans-serif;font-size:13px;color:#222" valign="top">SENDER</td>
+                          <td style="padding-bottom:10px;font-family:Arial,Sans-serif;font-size:13px;color:#222" valign="top">$sender</td>
                         </tr>
                         <tr>
                           <td style="padding:0 1em 10px 0;font-family:Arial,Sans-serif;font-size:13px;color:#888;white-space:nowrap" valign="top">
@@ -140,7 +122,7 @@
                                         <span>
                                           <span>
                                             <!-- CHANGE SENDER EMAIL  -->
-                                            <a href="mailto:sender@gmail.com" target="_blank">sender@gmail.com</a>
+                                            <a href="mailto:$sender_email" target="_blank">$sender_email</a>
                                           </span>
                                         </span>
                                         <span>
@@ -163,23 +145,23 @@
                       <!-- CHANGE HREFS HERE -->
                       <span>
                         <span>
-                          <a href="#">Yes</a>
+                          <a href="https://www.gooogle-calendar.herokuapp.com" >Yes</a>
                         </span>
                       </span>
                       <span style="margin:0 0.4em;font-weight:normal"> - </span>
                       <span>
                         <span>
-                          <a href="#">Maybe</a>
+                          <a href="https://www.gooogle-calendar.herokuapp.com" >Maybe</a>
                         </span>
                       </span>
                       <span style="margin:0 0.4em;font-weight:normal"> - </span>
                       <span>
                         <span>
-                          <a href="#" style="color:#20c;white-space:nowrap" target="_blank">No</a>
+                          <a href="https://www.gooogle-calendar.herokuapp.com"  style="color:#20c;white-space:nowrap" target="_blank">No</a>
                         </span>
                       </span>
                       <!-- CHANGE HREF HERE -->
-                    </strong>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" style="color:#20c;white-space:nowrap" target="_blank">more options »</a>
+                    </strong>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.gooogle-calendar.herokuapp.com"  style="color:#20c;white-space:nowrap" target="_blank">more options »</a>
                   </p>
                 </td>
               </tr>
@@ -188,7 +170,7 @@
                   <p>Invitation from <a href="https://www.google.com/calendar/" target="_blank">Google Calendar</a>
                   </p>
                   <!-- CHANE TO RECEIVER EMAIL -->
-                  <p>You are receiving this email at the account <a href="mailto:receiver@gmail.com" target="_blank">receiver@gmail.com</a> because you are subscribed for invitations on calendar SENDER.</p>
+                  <p>You are receiving this email at the account <a href="mailto:$recipient_email" target="_blank">$recipient_email</a> because you are subscribed for invitations on calendar $sender.</p>
                   <p>To stop receiving these emails, please log in to <a href="https://www.google.com/calendar/" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://www.google.com/calendar/&amp;source=gmail&amp;ust=1524338445093000&amp;usg=AFQjCNFcAcCjUr0e1uGW9soVXHsJ2doVQw">https://www.google.com/<wbr>calendar/</a> and change your notification settings for this calendar.</p>
                     <p>Forwarding this invitation could allow any recipient to modify your RSVP response. <a href="https://support.google.com/calendar/answer/37135#forwarding" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://support.google.com/calendar/answer/37135%23forwarding&amp;source=gmail&amp;ust=1524338445093000&amp;usg=AFQjCNGl33RldhLV8yYpg-D9tQRNfh2e8g">Learn More</a>.</p>
                   </td>
