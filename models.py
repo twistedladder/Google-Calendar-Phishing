@@ -1,5 +1,4 @@
 from app import db
-from sqlalchemy.dialects.postgresql import JSON
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 
