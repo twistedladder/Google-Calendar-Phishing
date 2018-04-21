@@ -8,6 +8,7 @@ import requests
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
+import sendemail
 from datetime import datetime
 app = Flask(__name__)
 
@@ -24,14 +25,16 @@ def homepage():
 @app.route('/hack', methods=['GET', 'POST'])
 def hack_form():
     if request.method == 'POST':
-        sender = request.form.get('sender')
-        recipient = request.form.get('recipient')
-        return send_initial_email(sender, recipient)
+        sender_email = request.form.get('sender_email')
+        sender_name = request.form.get('sender_name')
+        recipient_email = request.form.get('recipient_email')
+        
+        return send_email(sender_name, sender_email, recipient_email)
     else:
         return render_template('hack_form.html')
     
 
-def send_initial_email(sender, recipient):
+def send_email(sender, recipient):
     return render_template('hack_form.html')    
 
 
