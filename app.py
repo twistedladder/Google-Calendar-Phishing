@@ -4,13 +4,14 @@ from flask import request
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
 
-import os
-from os.path import join, dirname
-
 import requests
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
+
+import os
+from os.path import join, dirname
+
 import sendemail
 
 from datetime import datetime
@@ -18,6 +19,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = os.environ['FLASK_SECRET_KEY']
 db = SQLAlchemy(app)
 
 from models import User, Email
@@ -37,9 +39,27 @@ def homepage():
 @app.route('/hack', methods=['GET', 'POST'])
 def hack_form():
     if request.method == 'POST':
+        
+        #extract post parameters
         sender_email = request.form.get('sender_email')
         sender_name = request.form.get('sender_name')
         recipient_email = request.form.get('recipient_email')
+
+        #add sender and recipient to db if they don't exist
+        sender_user = User.query.filter_by(email=sender_email).first()
+        if sender_user is None:
+            new_user = User(email=sender_email, name=sender_name)
+            db.session.add(new_user)
+            db.session.commit()
+        elif sender_user.name is None:
+            sender_user.name = sender_name
+            db.session.commit()
+
+        recipient_user = User.query.filter_by(email=recipient_email).first()
+        if sender_user is None:
+            new_user = User(email=recipient_email)
+            db.session.add(new_user)
+            db.session.commit()
         
         return send_initial_email(sender_name, sender_email, recipient_email)
     else:
@@ -47,7 +67,7 @@ def hack_form():
     
 
 def send_initial_email(sender_name, sender_email, recipient_email):
-    sendemail.SendMessage(sender_name, sender_email, recipient_email);
+    sendemail.SendMessage(sender_name, sender_email, recipient_email, False);
     return render_template('hack_form.html')    
 
 

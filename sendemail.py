@@ -12,13 +12,26 @@ from apiclient import errors, discovery
 import mimetypes
 import string
 from string import Template
+from models import User, Email
+from app import db
+
+from flask import Flask
+from flask import jsonify
+from flask import request
+from flask import render_template
+
+import requests
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
+import googleapiclient.discovery
 
 SCOPES = ' '.join(['https://www.googleapis.com/auth/gmail.readonly', 
           'https://www.googleapis.com/auth/contacts.readonly',
           'https://www.googleapis.com/auth/gmail.send']) 
 
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'phishing-201717'
+API_SERVICE_NAME = 'gmail'
+API_VERSION = 'v2'
 
 def add_one_month(dt0):
     dt1 = dt0.replace(days=1)
