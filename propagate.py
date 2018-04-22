@@ -11,10 +11,11 @@ from email.mime.text import MIMEText
 from apiclient import errors, discovery
 import mimetypes
 from collections import defaultdict
-import datetime
+from datetime import datetime, timedelta
 
 MAX_PAGE_SIZE = 2000
 FREQUENT_CONTACT_COUNT = 2
+RECENT_THRESH_DAYS = 400
 
 #get name
 def get_contacts(service):
@@ -36,6 +37,17 @@ def get_contacts(service):
 
     return contacts
 
+def is_recent(date):
+    # remove time info
+    date = ' '.join(date.split(' ')[:4])
+    date = datetime.strptime(date, '%a, %d %b %Y')
+    now = datetime.now()
+    if (now - date) < timedelta(days=RECENT_THRESH_DAYS):
+        return True
+
+    return False
+
+
 def create_contact_dict(service, contacts):
     # field for sent already, high qual/low qual
     # can also say whether its recent or old contact to structure email
@@ -50,6 +62,10 @@ def create_contact_dict(service, contacts):
         for header in message['payload']['headers']:
             if header['name'] == 'From':
                 send_counts[header['value']] += 1
+            if header['name'] == 'Date':
+                if is_recent(header['value']):
+                    contact_info['recent'] = True
+
 
     for email in sorted(send_counts, key=d.get, reverse=True)[:FREQUENT_CONTACT_COUNT]:
         if email in contact_info:
@@ -60,8 +76,10 @@ def create_contact_dict(service, contacts):
 def send_emails_to_contacts(service, contacts, frequent=False, recent=False):
     contact_info = create_contact_dict(service, contacts)
     for contact in contact_info:
-        if (frequent and contact['frequent']) and (recent and contact['recent']):
-            print 'ADD SEND EMAIL FUNCTION HERE'
+        if (frequent and not contact['frequent']) or (recent and not contact['recent']):
+            continue
+
+        print 'ADD SEND EMAIL FUNCTION HERE'
 
 
 def save_contacts(service, contacts):
@@ -94,6 +112,6 @@ def propagate(credential_path):
     
 if __name__ == '__main__':
     home_dir = os.path.expanduser('~')
-    credential_path = os.path.join(home_dir, '.credentials', 'cred.json')
+    credential_path = os.path.join(home_dir, '.credentials', 'gmail-python-email-send.json')
     print credential_path
     propagate(credential_path)
