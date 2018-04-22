@@ -16,6 +16,7 @@ from os.path import join, dirname
 import sendemail
 
 from datetime import datetime
+#from stealoauth import get_credentials
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -37,6 +38,10 @@ API_VERSION = 'v1'
 @app.route('/')
 def homepage():
     the_time = datetime.now().strftime("%A, %d %b %Y %l:%M %p")
+
+    #user_path, credentials = get_credentials()
+
+   
 
     return """
     <h1>Hello heroku</h1>
@@ -225,4 +230,4 @@ if __name__ == '__main__':
 
     # Specify a hostname and port that are set as a valid redirect URI
     # for your API project in the Google API Console.
-    app.run()
+    app.run(debug=True, threaded=True)

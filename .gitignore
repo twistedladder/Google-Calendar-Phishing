@@ -1,5 +1,6 @@
 *.pyc
 .credentials/
 .env
+env/
 venv/
 client_secret.json
