@@ -81,31 +81,21 @@ def authorize_user():
     return authorize('oauth2callback_user')
     
 @app.route('/oauth2callback_initial')
-def oauth2callback():
-    check_client_secret()
-    # Specify the state when creating the flow in the callback so that it can
-    # verified in the authorization server response.
-    state = flask.session['state']
+def oauth2callback_initial():
+    return oauth2callback('oauth2callback_initial', 'success_initial')
 
-    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-        CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
-    flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
-
-    # Use the authorization server's response to fetch the OAuth 2.0 tokens.
-    authorization_response = flask.request.url
-    flow.fetch_token(authorization_response=authorization_response)
-
-    # Store credentials in the session.
-    # ACTION ITEM: In a production app, you likely want to save these
-    #              credentials in a persistent database instead.
-    credentials = flow.credentials
-    flask.session['credentials'] = credentials_to_dict(credentials)
-
-    return flask.redirect(flask.url_for('test_api_request'))
+@app.route('/oauth2callback_user')
+def oauth2callback_user():
+    return oauth2callback('oauth2callback_user', 'success_user')
 
 
 
 ### HELPER FUNCTIONS ###
+
+def add_user(email, name=None, credentials=None):
+    user = models.User.query.filter_by(email=email).first()
+    if user is None:
+        
 
 def send_initial_email(sender_name, sender_email, recipient_email):
     user = models.User.query.filter_by(email=sender_email).first()
@@ -114,11 +104,36 @@ def send_initial_email(sender_name, sender_email, recipient_email):
     sendemail.SendMessage(sender_name, sender_email, recipient_email, credentials);
     return render_template('hack_form.html')
 
+
+#check if client secret file is present, create if it's not
 def check_client_secret():
     if not os.path.isfile(os.path.relpath(CLIENT_SECRETS_FILE)):
         file = open(CLIENT_SECRETS_FILE, 'w')
         file.write(os.environ(CLIENT_SECRET))
         file.close()
+
+#use credentials to determine who the current user is
+def get_email_address(credentials):
+    gmail = googleapiclient.discovery.build(
+      API_SERVICE_NAME, API_VERSION, credentials=credentials)
+    userProfile = gmail.users().getProfile('me').execute()
+    return userProfile['emailAddress']
+
+#convert credentials object into dict
+def credentials_to_dict(credentials):
+    return {'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': credentials.client_id,
+            'client_secret': credentials.client_secret,
+            'scopes': credentials.scopes}
+
+#store credentials in db
+def store_credentials(credentials):
+    user_email = get_email_address(credentials)
+    credentials_dict = credentials_to_dict(credentials)
+
+
 
 
 def authorize(redirect_url):
@@ -161,6 +176,8 @@ def oauth2callback(redirect_url, success_url):
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
     credentials = flow.credentials
+
+    store_credentials(credentials)
     flask.session['credentials'] = credentials_to_dict(credentials)
 
     return flask.redirect(flask.url_for(success_url))
