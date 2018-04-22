@@ -1,16 +1,21 @@
 # Google-Calendar-Phishing
-Ethical Hacking final project
-EDUCATIONAL PURPOSES ONLY
+This is our Ethical Hacking (C S 378) final project.
+It is for EDUCATIONAL PURPOSES ONLY.
 This project was meant to demonstrate proof of concept of a phishing attack.
 It should not be used as an actual phishing attack.
 
 
 # Setup
 The following environment variables need to be set up:
+
 APP_SETTINGS: This should be 'config.DevelopmentConfig' in development
+
 CLIENT_SECRET: This is the Google OAuth Client Secret JSON (the entire string)
+
 FLASK_SECRET_KEY: This can be any secret key you choose. Flask just uses it to maintain sessions
+
 DATABASE_URL: This is the complete url to the database, which must be a postgresql database. For development, you'll likely be connecting to a local database with the format 'postgresql://[user]:[password]@localhost:5432/[database_name]'
+
 
 To install Python dependencies, run the following command:
 ```
