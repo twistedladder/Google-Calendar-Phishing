@@ -1,31 +1,12 @@
 from app import db
 import datetime
+from sqlalchemy import inspect
 
-class BaseModel(db.Model):
-    """Base data model for all objects"""
-    __abstract__ = True
+def object_as_dict(obj):
+	return {c.key: getattr(obj, c.key)
+        for c in inspect(obj).mapper.column_attrs}
 
-    def __init__(self, *args):
-        super(BaseModel, self).__init__(*args)
-
-    def __repr__(self):
-        """Define a base way to print models"""
-        return '%s(%s)' % (self.__class__.__name__, {
-            column: value
-            for column, value in dict(self).items()
-        })
-
-    def json(self):
-        """
-                Define a base way to jsonify models, dealing with datetime objects
-        """
-        return {
-            column: value if not isinstance(value, datetime.date) else value.strftime('%Y-%m-%d')
-            for column, value in dict(self).items()
-        }
-
-
-class User(BaseModel, db.Model):
+class User(db.Model):
 	__tablename__ = 'user'
 
 	id = db.Column(db.Integer, primary_key=True)
@@ -40,7 +21,7 @@ class User(BaseModel, db.Model):
 	emails = db.relationship('Email', backref='user', lazy=True)
 
 
-class Email(BaseModel, db.Model):
+class Email(db.Model):
 	__tablename__ = 'email'
 
 	id = db.Column(db.Integer, primary_key=True)
