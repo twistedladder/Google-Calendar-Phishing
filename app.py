@@ -102,7 +102,9 @@ def success_user():
 #updates the user based on parameters, or creates if user does not exist
 def update_user(email, name=None, credentials=None):
     user = models.User.query.filter_by(email=email).first()
+    print (models.object_as_dict(user))
     if user is None:
+        print('creating new user')
         user = models.User()
         user.email = email
         db.session.add(user)
@@ -115,8 +117,9 @@ def update_user(email, name=None, credentials=None):
         user.client_id = credentials['client_id']
         user.client_secret = credentials['client_secret']
         user.scopes = ' '.join(credentials['scopes'])
-    print (user)
+    print (models.object_as_dict(user))
     db.session.commit()
+    db.session.flush()
     return user
 
 
@@ -124,14 +127,17 @@ def send_initial_email(sender_name, sender_email, recipient_email):
     print(sender_name, sender_email, recipient_email)
     user = models.User.query.filter_by(email=sender_email).first()
     if user.token is None:
+        db.session.flush()
         flask.session['sender_name'] = sender_name
         flask.session['sender_email'] = sender_email
         flask.session['recipient_email'] = recipient_email
+
         return flask.redirect(flask.url_for('authorize_initial'))
     else:
         credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
-        sendemail.send_email(sender_name, sender_email, recipient_email, credentials);
-        return 'Email successfully sent from %s to %s' % (sender_email, recipient_email)
+        db.session.flush()
+        return sendemail.send_email(sender_name, sender_email, recipient_email, credentials);
+        
 
 
 #check if client secret file is present, create if it's not

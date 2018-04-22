@@ -11,15 +11,15 @@ from string import Template
 import requests
 import googleapiclient.discovery
 import googleapiclient.errors
-from datetime import datetime
+from datetime import datetime, timedelta
 
 API_SERVICE_NAME = 'gmail'
 API_VERSION = 'v1'
 
 def add_one_month(dt0):
-    dt1 = dt0.replace(days=1)
+    dt1 = dt0.replace(day=1)
     dt2 = dt1 + timedelta(days=32)
-    dt3 = dt2.replace(days=1)
+    dt3 = dt2.replace(day=1)
     return dt3
 
 def CreateMessageHtml(sender, to, subject, msgHtml, msgPlain):
@@ -38,7 +38,7 @@ def build_message(sender_name, sender_email, recipient_email):
     subject = subject.safe_substitute(date=new_date, sender_name=sender_name) 
     
     #build html calendar invite
-    html = Template(fopen('templates/email_template.html','r').read())
+    html = Template(open('templates/email_template.html','r').read())
     html = html.safe_substitute(date=new_date, sender_name=sender_name, sender_email=sender_email, recipient_email=recipient_email);
 
     service = discovery.build('gmail', 'v1', http=http)
