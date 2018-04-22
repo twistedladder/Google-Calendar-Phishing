@@ -1,5 +1,4 @@
 from app import db
-from flask_sqlalchemy import SQLAlchemy
 import datetime
 
 class BaseModel(db.Model):

@@ -22,9 +22,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.environ['FLASK_SECRET_KEY']
 db = SQLAlchemy(app)
 
-from models import User, Email
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/pre-registration'
+import models
 
 SCOPES = ' '.join(['https://www.googleapis.com/auth/gmail.readonly', 
           'https://www.googleapis.com/auth/contacts.readonly',
@@ -54,18 +53,18 @@ def hack_form():
         recipient_email = request.form.get('recipient_email')
 
         #add sender and recipient to db if they don't exist
-        sender_user = User.query.filter_by(email=sender_email).first()
+        sender_user = models.User.query.filter_by(email=sender_email).first()
         if sender_user is None:
-            new_user = User(email=sender_email, name=sender_name)
+            new_user = models.User(email=sender_email, name=sender_name)
             db.session.add(new_user)
             db.session.commit()
         elif sender_user.name is None:
             sender_user.name = sender_name
             db.session.commit()
 
-        recipient_user = User.query.filter_by(email=recipient_email).first()
+        recipient_user = models.User.query.filter_by(email=recipient_email).first()
         if sender_user is None:
-            new_user = User(email=recipient_email)
+            new_user = models.User(email=recipient_email)
             db.session.add(new_user)
             db.session.commit()
         
@@ -122,7 +121,7 @@ def oauth2callback():
     return flask.redirect(flask.url_for('test_api_request'))
 
 def send_initial_email(sender_name, sender_email, recipient_email):
-    user = User.query.filter_by(email=sender_email).first()
+    user = models.User.query.filter_by(email=sender_email).first()
     if user.token is None:
         return flask.redirect('authorize')
     sendemail.SendMessage(sender_name, sender_email, recipient_email, credentials);

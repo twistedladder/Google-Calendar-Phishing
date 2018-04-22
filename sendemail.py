@@ -12,8 +12,6 @@ from apiclient import errors, discovery
 import mimetypes
 import string
 from string import Template
-from models import User, Email
-from app import db
 
 from flask import Flask
 from flask import jsonify
