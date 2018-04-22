@@ -59,7 +59,7 @@ def get_credentials():
     return credentials
 
 #def SendMessage(sender, to, subject, msgHtml, msgPlain, attachmentFile=None):
-def SendMessage(sender_name, sender_email, recipient_email):
+def SendMessage(sender_name, sender_email, recipient_email, credentials):
     #get OAuth credentials
     credentials = get_credentials()
 
