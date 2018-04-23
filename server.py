@@ -10,8 +10,6 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly',
           'https://www.googleapis.com/auth/userinfo.email']
 
 CLIENT_SECRET_FILE = 'client_secret.json'
-API_SERVICE_NAME = 'gmail'
-API_VERSION = 'v1'
 
 @app.route('/')
 def homepage():

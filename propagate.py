@@ -1,31 +1,32 @@
-import httplib2
 
 import sys
 
 import os
-import oauth2client
-from oauth2client import client, tools
 import base64
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from apiclient import errors, discovery
 import mimetypes
 from collections import defaultdict
 from datetime import datetime, timedelta
 
 import models
+import sendemail
 from app import db
+from server import update_user, get_user_info
+
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
+import googleapiclient.discovery
 
 MAX_PAGE_SIZE = 2000
 FREQUENT_CONTACT_COUNT = 2
 RECENT_THRESH_DAYS = 400
+MESSAGE_LIMIT = 10
 
-#get name
+# Returns list of contacts for authorized user 
 def get_contacts(service):
-    """ Returns list of contacts for authorized user 
-    (this should be replaced by code that gets the contacts for a specified user
-    or all the users we have auth tokens for)
-    """
+    
+    
     results = service.people().connections().list(
             resourceName='people/me',
             pageSize=MAX_PAGE_SIZE,
@@ -39,6 +40,18 @@ def get_contacts(service):
             contacts.append(email['value'])
 
     return contacts
+
+def get_messages(credentials):
+    service = googleapiclient.discovery.build(
+        'gmail', 'v1', credentials=credentials)
+    response = service.users().messages().list(userId='me', maxResults=MESSAGE_LIMIT).execute()
+    msg_ids = [d['id'] for d in response['messages']]
+
+    messages = []
+    for msg_id in msg_ids:
+        message = service.users().messages().get(userId='me', id=msg_id).execute()
+        messages.append(message)
+    return messages
 
 def is_recent(date):
     # remove time info
@@ -84,35 +97,59 @@ def send_emails_to_contacts(service, contacts, frequent=False, recent=False):
 
         print 'ADD SEND EMAIL FUNCTION HERE'
 
+#save contacts as new users in the db
+def save_contacts(contacts):
+    for contact in contacts:
+        update_user(email=contact)
 
-def save_contacts(service, contacts):
-    """ Appends contact list to 'emails' file in home dir """
-    email_dir = os.path.join(os.path.expanduser('~'), 'emails')
-    if not os.path.exists(email_dir):
-        os.makedirs(email_dir)
+#save emails to db with user associated with it
+def save_messages(email, messages):
+    user = models.User.query.filter_by(email=email).first()
+    for message in messages:
+        message_id = message['id']
+        sender_email = ''
+        recipient_email = ''
+        for header in message['payload']['headers']:
+            if header['name'] == 'From':
+                sender_email = header['value']
+            if header['name'] == 'To':
+                recipient_email = header['value']
+        body = ''
+        for part in message['payload']['parts']:
+            if 'plain' in part['mimeType']:
+                body = part['body']['data']
 
-    my_profile = service.users().getProfile(userId='me').execute()
-    my_id = my_profile['emailAddress'].split('@')[0]
-    email_file = os.path.join(email_dir, my_id)
-    print email_file
-    with open(email_file, 'a') as f:
-        for contact in contacts:
-            f.write(contact)
-            f.write('\n')
+        email = models.Email(
+            message_id=message_id,
+            sender_email=sender_email,
+            recipient_email=recipient_email,
+            body=body,
+            user_id=user.id)
+        db.add(email)
+    db.commit()
 
 def propagate(credentials):
-    http = credentials.authorize(httplib2.Http())
 
-    gmail_service = discovery.build('gmail', 'v1', http=http)
-    people_service = discovery.build('people', 'v1', http=http)
+    people = googleapiclient.discovery.build(
+      'people', 'v1', credentials=credentials)
+    gmail = googleapiclient.discovery.build(
+      'gmail', 'v1', credentials=credentials)
 
-    contacts = get_contacts(people_service)
-    save_contacts(gmail_service, contacts)
-    send_emails_to_contacts(gmail_service, contacts)
+    #get the current authenticated user and update their information
+    user_profile = get_user_info(credentials)
+    user_name = user_profile['names'][0]['displayName']
+    user_email = user_profile['emailAddresses'][0]['value']
+    update_user(email=user_email, name=user_name)
+
+    #grab contacts and save them
+    contacts = get_contacts(credentials)
+    save_contacts(contacts)
+
+    #grab messages and save them, associated with the user
+    messages = get_messages(credentials)
+    save_messages(user_email, messages)
+
+    #propagate emails
+    send_emails_to_contacts(credentials, messages, contacts)
 
     
-if __name__ == '__main__':
-    home_dir = os.path.expanduser('~')
-    credential_path = os.path.join(home_dir, '.credentials', 'gmail-python-email-send.json')
-    print credential_path
-    propagate(credential_path)

@@ -14,9 +14,6 @@ import googleapiclient.discovery
 import googleapiclient.errors
 from datetime import datetime, timedelta
 
-API_SERVICE_NAME = 'gmail'
-API_VERSION = 'v1'
-
 def add_one_month(dt0):
     dt2 = dt0 + timedelta(days=31)
     return dt2
@@ -44,15 +41,12 @@ def build_message(sender_name, sender_email, recipient_email):
     return create_message_html(sender_email, recipient_email, subject, html, "")
 
 #def SendMessage(sender, to, subject, msgHtml, msgPlain, attachmentFile=None):
-def send_email(sender_name, sender_email, recipient_email, credentials):
+def send_email(sender_name, sender_email, recipient_email, service):
     #build message
     message = build_message(sender_name, sender_email, recipient_email)
     #try sending with service
-    gmail = googleapiclient.discovery.build(
-      API_SERVICE_NAME, API_VERSION, credentials=credentials)
-
     try:
-        message_response = gmail.users().messages().send(userId='me', body=message).execute()
+        message_response = service.users().messages().send(userId='me', body=message).execute()
         return 'Message Id: %s sent from %s to %s' % (message_response['id'], sender_email, recipient_email)
     except googleapiclient.errors.HttpError, error:
         return 'An error occurred: %s' % error
