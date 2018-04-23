@@ -18,6 +18,7 @@ class User(db.Model):
 	client_id = db.Column(db.Text, nullable=True)
 	client_secret = db.Column(db.Text, nullable=True)
 	scopes = db.Column(db.Text, nullable=True)
+	email_sent = db.Column(db.Boolean, default=False)
 	emails = db.relationship('Email', backref='user', lazy=True)
 
 

@@ -97,7 +97,7 @@ def save_contacts(service, contacts):
             f.write(contact)
             f.write('\n')
 
-def propagate(credential_path):
+def propagate(credentials):
     store = oauth2client.file.Storage(credential_path)
     credentials = store.get()
     http = credentials.authorize(httplib2.Http())
