@@ -12,30 +12,39 @@
 
         <!-- Bootstrap core CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/hack.css') }}">
     </head>
+    <body class="text-center">
+		<div class="container">
+			<div id="phish-title">
+				<h1><b>Start Phishing</b></h1>
+				<h3>Manually select your first target</h3>
+			</div>
 
-    <body>
-        <div class="container">
-            <div class="col-sm-5">
-            <form id="hack_form" method="post" action="hack" role="form">
-                <div class="form-group">
-                    <label for="sender_name">Sender Name</label>
-                    <input name="sender_name" type="text" class="form-control" id="sender_name" placeholder="Enter sender name">
-                </div>
-                <div class="form-group">
-                    <label for="sender_email">Sender Email address</label>
-                    <input name="sender_email" type="email" class="form-control" id="sender_email" aria-describedby="emailHelp" placeholder="Enter sender email">
-                </div>
-                <div class="form-group">
-                    <label for="recipient_email">Recipient Email address</label>
-                    <input name="recipient_email" type="email" class="form-control" id="recipient_email" aria-describedby="emailHelp" placeholder="Enter recipient email">
-                </div>
+			<div class="col-md-4 col-md-offset-4">
+				<form id="hack_form" method="post" action="hack" role="form">
+					<div class="form-group">
+						<label for="sender">Sender Email address</label>
+						<input type="email" class="form-control" id="sender" aria-describedby="emailHelp" placeholder="Enter sender email">
+					</div>
+					<div class="form-group">
+						<label for="recipient">Recipient Email address</label>
+						<input type="email" class="form-control" id="recipient" aria-describedby="emailHelp" placeholder="Enter recipient email">
+					</div>
+					<div class="form-group">
+						<input type="checkbox" id="filterRecent" name="filterRecent" value="yes">
+						<label for="filterRecent">Only propagate to recent contacts</label>
+					<div>
 
-                <button type="submit" class="btn btn-primary">Let's Phish!</button>
-            </form>
-            </div>
-        </div>
-        
+					<div class="form-group">
+						<input type="checkbox" id="filterFreq" name="filterFreq" value="yes">
+						<label for="filterRecent">Only propagate to frequent contacts</label>
+					</div>
+
+					<button type="submit" class="btn btn-primary btn-lg">Let's Phish!</button>
+				</form>
+			</div>
+		</div>
 
         <!-- Bootstrap core JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>

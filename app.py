@@ -16,14 +16,10 @@ from os.path import join, dirname
 import sendemail
 
 from datetime import datetime
+#from stealoauth import get_credentials
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.environ['FLASK_SECRET_KEY']
 db = SQLAlchemy(app)
-
-
-
-
-

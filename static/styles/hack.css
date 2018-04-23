@@ -1,0 +1,24 @@
+.container {
+	padding-top: 100px;
+}
+
+#phish-title {
+	margin-bottom: 4em;
+}
+
+html {
+	font-size: 18px;
+}
+
+h1 {
+	font-size: 3em;
+}
+
+h3 {
+	font-size: 2em;
+}
+
+label{
+	font-size: 1.25em;
+	font-weight: 300;
+}

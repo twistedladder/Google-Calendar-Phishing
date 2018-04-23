@@ -29,5 +29,5 @@ python manage.py db upgrade
 
 To run the app locally, run the following command:
 ```
-python app.py
+python server.py
 ```
