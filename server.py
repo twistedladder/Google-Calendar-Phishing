@@ -4,7 +4,9 @@ import propagate
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 
           'https://www.googleapis.com/auth/contacts.readonly',
-          'https://www.googleapis.com/auth/gmail.send']
+          'https://www.googleapis.com/auth/gmail.send',
+          'https://www.googleapis.com/auth/userinfo.profile',
+          'https://www.googleapis.com/auth/userinfo.email']
 
 CLIENT_SECRET_FILE = 'client_secret.json'
 API_SERVICE_NAME = 'gmail'
@@ -131,7 +133,7 @@ def check_client_secret():
 def get_user_info(credentials):
     people = googleapiclient.discovery.build(
       'people', 'v1', credentials=credentials)
-    userProfile = people.get(resourceName='people/me', personField='names,emailAddresses').execute()
+    userProfile = people.people().get(resourceName='people/me', personFields='names,emailAddresses').execute()
     return userProfile
 
 #extract credentials dict from user in db
@@ -155,7 +157,9 @@ def credentials_to_dict(credentials):
 #store credentials in db
 def store_credentials(credentials):
     # FIX THIS BEFORE YOU BREAK YOUR CODE
-    user_email = get_email_address(credentials)
+    user_profile = get_user_info(credentials)
+    print(user_profile)
+    user_email = user_profile['emailAddresses'][0]['value']
     flask.session['current_email'] = user_email
     credentials_dict = credentials_to_dict(credentials)
     update_user(email=user_email, credentials=credentials_dict)
