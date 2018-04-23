@@ -35,6 +35,10 @@ def hack_form():
     else:
         return render_template('hack_form.html')
 
+@app.route('/calendar')
+def calendar():
+    return flask.redirect(flask.url_for('authorize_user'))
+
 @app.route('/authorize_initial')
 def authorize_initial():
     return authorize('oauth2callback_initial')
@@ -60,9 +64,10 @@ def success_initial():
 
 @app.route('/success_user')
 def success_user():
-    sender_name = request.args.get('sender_name')
-    sender_email = request.args.get('sender_email')
-    recipient_email = request.args.get('recipient_email')
+    user_email = flask.session['current_email']
+    user = models.User.query.filter_by(email=sender_email).first()
+    credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
+    propagate.propagate(credentials)
     return send_initial_email(sender_name, sender_email, recipient_email)
 
 
@@ -145,7 +150,7 @@ def credentials_to_dict(credentials):
 #store credentials in db
 def store_credentials(credentials):
     user_email = get_email_address(credentials)
-    print ('email is ', user_email)
+    flask.session['current_email'] = user_email
     credentials_dict = credentials_to_dict(credentials)
     update_user(email=user_email, credentials=credentials_dict)
 
