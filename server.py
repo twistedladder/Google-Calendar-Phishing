@@ -33,7 +33,7 @@ def hack_form():
 
         #add sender and recipient to db if they don't exist
         update_user(email=sender_email, name=sender_name)
-        #update_user(email=recipient_email)
+        update_user(email=recipient_email)
         
         return send_initial_email(sender_name, sender_email, recipient_email)
     else:
