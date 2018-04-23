@@ -101,8 +101,6 @@ def save_contacts(service, contacts):
             f.write('\n')
 
 def propagate(credentials):
-    store = oauth2client.file.Storage(credential_path)
-    credentials = store.get()
     http = credentials.authorize(httplib2.Http())
 
     gmail_service = discovery.build('gmail', 'v1', http=http)
