@@ -14,7 +14,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 import models
-from server import db
+from app import db
 
 MAX_PAGE_SIZE = 2000
 FREQUENT_CONTACT_COUNT = 2
@@ -101,8 +101,6 @@ def save_contacts(service, contacts):
             f.write('\n')
 
 def propagate(credentials):
-    store = oauth2client.file.Storage(credential_path)
-    credentials = store.get()
     http = credentials.authorize(httplib2.Http())
 
     gmail_service = discovery.build('gmail', 'v1', http=http)

