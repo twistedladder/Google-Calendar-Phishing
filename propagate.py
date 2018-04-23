@@ -14,7 +14,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 import models
-from server import db
+from app import db
 
 MAX_PAGE_SIZE = 2000
 FREQUENT_CONTACT_COUNT = 2

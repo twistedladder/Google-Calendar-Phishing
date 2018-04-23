@@ -1,5 +1,6 @@
 from app import *
 import models
+import propagate
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 
           'https://www.googleapis.com/auth/contacts.readonly',
