@@ -18,7 +18,7 @@ API_SERVICE_NAME = 'gmail'
 API_VERSION = 'v1'
 
 def add_one_month(dt0):
-    dt2 = dt1 + timedelta(days=31)
+    dt2 = dt0 + timedelta(days=31)
     return dt2
 
 def create_message_html(sender, to, subject, msgHtml, msgPlain):
