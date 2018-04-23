@@ -13,6 +13,9 @@ import mimetypes
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+import models
+from server import db
+
 MAX_PAGE_SIZE = 2000
 FREQUENT_CONTACT_COUNT = 2
 RECENT_THRESH_DAYS = 400

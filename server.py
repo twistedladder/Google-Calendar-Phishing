@@ -67,7 +67,7 @@ def success_user():
     user_email = flask.session['current_email']
     user = models.User.query.filter_by(email=sender_email).first()
     credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
-    propagate.propagate(credentials)
+    propagate.propagate(credentials, user_email)
     return send_initial_email(sender_name, sender_email, recipient_email)
 
 
@@ -99,7 +99,7 @@ def update_user(email, name=None, credentials=None):
 
 
 def send_initial_email(sender_name, sender_email, recipient_email):
-    print(sender_name, sender_email, recipient_email)
+    #print(sender_name, sender_email, recipient_email)
     user = models.User.query.filter_by(email=sender_email).first()
     if user.token is None:
         #db.session.flush()
@@ -111,6 +111,10 @@ def send_initial_email(sender_name, sender_email, recipient_email):
     else:
         credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
         #db.session.flush()
+        recipient = models.User.query.filter_by(email=recipient_email).first()
+        recipient.email_sent = True
+        db.session.add(recipient)
+        db.session.commit()
         return sendemail.send_email(sender_name, sender_email, recipient_email, credentials);
         
 
@@ -123,11 +127,11 @@ def check_client_secret():
         file.close()
 
 #use credentials to determine who the current user is
-def get_email_address(credentials):
-    gmail = googleapiclient.discovery.build(
-      API_SERVICE_NAME, API_VERSION, credentials=credentials)
-    userProfile = gmail.users().getProfile(userId='me').execute()
-    return userProfile['emailAddress']
+def get_user_info(credentials):
+    people = googleapiclient.discovery.build(
+      'people', 'v1', credentials=credentials)
+    userProfile = people.get(resourceName='people/me', personField='names,emailAddresses').execute()
+    return userProfile
 
 #extract credentials dict from user in db
 def user_to_credentials(user):
@@ -149,6 +153,7 @@ def credentials_to_dict(credentials):
 
 #store credentials in db
 def store_credentials(credentials):
+    # FIX THIS BEFORE YOU BREAK YOUR CODE
     user_email = get_email_address(credentials)
     flask.session['current_email'] = user_email
     credentials_dict = credentials_to_dict(credentials)
