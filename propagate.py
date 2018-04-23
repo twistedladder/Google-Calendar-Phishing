@@ -50,6 +50,18 @@ def is_recent(date):
 
     return False
 
+# gets just the email from a weird header string
+def remove_name_from_contact(email):
+    email = email.split()
+    # format is weird in this case
+    if len(email) > 1:
+        # rm name
+        email = email[-1]
+        # rm tags
+        email = email[1:-1]
+
+    email = ''.join(email)
+    return email
 
 def create_contact_dict(service, contacts):
     # field for sent already, high qual/low qual
@@ -60,19 +72,41 @@ def create_contact_dict(service, contacts):
     msg_ids = [d['id'] for d in response['messages']]
 
     send_counts = defaultdict(int)
+    recent_contacts = set()
     for msg_id in msg_ids:
         message = service.users().messages().get(userId='me', id=msg_id).execute()
+        email = None
+
+        # transform headers into dict rather than list to make it easier to work with
+        headers_dict = {}
         for header in message['payload']['headers']:
-            if header['name'] == 'From':
-                send_counts[header['value']] += 1
-            if header['name'] == 'Date':
-                if is_recent(header['value']):
-                    contact_info['recent'] = True
+            headers_dict[header['name']] = header['value']
 
+        from_mail = remove_name_from_contact(headers_dict['From'])
+        to_mail = remove_name_from_contact(headers_dict['To'])
 
-    for email in sorted(send_counts, key=d.get, reverse=True)[:FREQUENT_CONTACT_COUNT]:
-        if email in contact_info:
-            contact_info[email]['frequent'] = True
+        send_counts[from_mail] += 1
+        send_counts[to_mail] += 1
+        if is_recent(headers_dict['Date']):
+            recent_contacts.add(from_mail)
+            recent_contacts.add(to_mail)
+
+    frequent_contacts = set()
+    for email in sorted(send_counts, key=d.get, reverse=True):
+        if len(frequent_contacts) > FREQUENT_CONTACT_COUNT:
+            break
+
+        # only care about frequent people in your contacts, not over all messages
+        if email in contacts:
+            frequent_contacts.add(email)
+
+    for contact in contact_info:
+        contact_info[contact] = {}
+        if contact in frequent_contacts:
+            contact_info[contact]['frequent'] = True
+
+        if contact in recent_contacts:
+            contact_info[contact]['recent'] = True
 
     return contact_info
 
