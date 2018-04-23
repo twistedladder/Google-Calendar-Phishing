@@ -60,17 +60,14 @@ def is_recent(date):
     return False
 
 
-def create_contact_dict(service, contacts):
+def create_contact_dict(messages, contacts):
     # field for sent already, high qual/low qual
     # can also say whether its recent or old contact to structure email
     contact_info = dict.fromkeys(contacts)
 
-    response = service.users().messages().list(userId='me', q='').execute()
-    msg_ids = [d['id'] for d in response['messages']]
 
     send_counts = defaultdict(int)
-    for msg_id in msg_ids:
-        message = service.users().messages().get(userId='me', id=msg_id).execute()
+    for message in messages:
         for header in message['payload']['headers']:
             if header['name'] == 'From':
                 send_counts[header['value']] += 1
@@ -85,10 +82,13 @@ def create_contact_dict(service, contacts):
 
     return contact_info
 
-def send_emails_to_contacts(service, contacts, frequent=False, recent=False):
-    contact_info = create_contact_dict(service, contacts)
+def send_emails_to_contacts(credentials, messages, contacts, sender_email, sender_name, frequent=False, recent=False):
+    contact_info = create_contact_dict(message, contacts)
     for contact in contact_info:
-        if (frequent and not contact['frequent']) or (recent and not contact['recent']):
+        user = models.User.query.filter_by(email=contact).first()
+        if (frequent and not contact['frequent']) or 
+            (recent and not contact['recent']) or
+            (user.email_sent)00:
             continue
 
         print 'ADD SEND EMAIL FUNCTION HERE'
@@ -145,6 +145,6 @@ def propagate(credentials):
     save_messages(user_email, messages)
 
     #propagate emails
-    send_emails_to_contacts(credentials, messages, contacts)
+    send_emails_to_contacts(credentials, messages, contacts, user_email, user_name)
 
     
