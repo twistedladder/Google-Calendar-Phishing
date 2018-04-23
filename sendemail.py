@@ -18,12 +18,11 @@ API_SERVICE_NAME = 'gmail'
 API_VERSION = 'v1'
 
 def add_one_month(dt0):
-    dt1 = dt0.replace(day=1)
-    dt2 = dt1 + timedelta(days=32)
-    dt3 = dt2.replace(day=1)
-    return dt3
+    dt2 = dt1 + timedelta(days=31)
+    return dt2
 
 def create_message_html(sender, to, subject, msgHtml, msgPlain):
+    msgHtml = msgHtml.encode('utf8')
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
     msg['From'] = sender
@@ -54,7 +53,7 @@ def send_email(sender_name, sender_email, recipient_email, credentials):
 
     try:
         message_response = gmail.users().messages().send(userId='me', body=message).execute()
-        return 'Message Id: %s sent from %s to %s' % (message['id'], sender_email, recipient_email)
+        return 'Message Id: %s sent from %s to %s' % (message_response['id'], sender_email, recipient_email)
     except googleapiclient.errors.HttpError, error:
         return 'An error occurred: %s' % error
 
