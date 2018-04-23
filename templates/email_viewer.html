@@ -19,17 +19,20 @@
 			<div id="phish-title">
 				<h1><b>Emails For {{username}}</b></h1>
 			</div>
+			<br>
 			<table class="table">
 				<thead>
 					<tr>
 						<th scope="col">Sender</th>
+						<th scope="col">Recipient</th>
 						<th scope="col">Body</th>
 					</tr>
 				</thead>
 				<tbody>
 				{% for email in emails %}
 					<tr>
-						<th scope="row">{{email.sender_email}}</th>
+						<td scope="row" class="fit">{{email.sender_email}}</td>
+						<td scope="row" class="fit">{{email.recipient_email}}</td>
 						<td>{{email.body}}</td>
 					</tr>
 				{% endfor %}
