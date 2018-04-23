@@ -1,6 +1,7 @@
 from app import *
 import models
 import propagate
+import base64
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 
           'https://www.googleapis.com/auth/contacts.readonly',
@@ -87,8 +88,15 @@ def email_viewer():
     uid = request.args.get('user', '')
     user = models.User.query.filter_by(id=uid).first()
     emails = models.Email.query.filter_by(user_id=uid).all()
-    email_list = [models.object_as_dict(email) for email in emails]
-    print email_list, user, uid
+    email_list = []
+    for email in emails:
+        email_dict = models.object_as_dict(email)
+        try:
+            email_dict['body'] = base64.b64decode(email_dict['body'])
+        except TypeError:
+            print 'email', email_dict, 'not in base64.'
+
+        email_list.append(email_dict)
 
     return render_template('email_viewer.html', emails=email_list, username=user.name)
 
