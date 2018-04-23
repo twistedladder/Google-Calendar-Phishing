@@ -68,7 +68,7 @@ def success_initial():
 
 @app.route('/success_user')
 def success_user():
-    user_email = flask.session['current_email']
+    user_email = flask.session['authenticated_email']
     user = models.User.query.filter_by(email=sender_email).first()
     credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
     propagate.propagate(credentials, user_email)
@@ -128,8 +128,9 @@ def update_user(email, name=None, credentials=None):
 
 def send_initial_email(sender_name, sender_email, recipient_email):
     #print(sender_name, sender_email, recipient_email)
-    user = models.User.query.filter_by(email=sender_email).first()
-    if user.token is None:
+
+    user = models.User.query.filter_by(email=flask.session['authenticated_email']).first()
+    if user is not None and user.token is None:
         #db.session.flush()
         flask.session['sender_name'] = sender_name
         flask.session['sender_email'] = sender_email
@@ -181,11 +182,10 @@ def credentials_to_dict(credentials):
 
 #store credentials in db
 def store_credentials(credentials):
-    # FIX THIS BEFORE YOU BREAK YOUR CODE
     user_profile = get_user_info(credentials)
     print(user_profile)
     user_email = user_profile['emailAddresses'][0]['value']
-    flask.session['current_email'] = user_email
+    flask.session['authenticated_email'] = user_email
     credentials_dict = credentials_to_dict(credentials)
     update_user(email=user_email, credentials=credentials_dict)
 
