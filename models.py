@@ -7,7 +7,7 @@ def object_as_dict(obj):
         for c in inspect(obj).mapper.column_attrs}
 
 class User(db.Model):
-	__tablename__ = 'user'
+	__tablename__ = 'users'
 
 	id = db.Column(db.Integer, primary_key=True)
 	email = db.Column(db.String(120), unique=True, nullable=False)
@@ -19,14 +19,14 @@ class User(db.Model):
 	client_secret = db.Column(db.Text, nullable=True)
 	scopes = db.Column(db.Text, nullable=True)
 	email_sent = db.Column(db.Boolean, default=False)
-	emails = db.relationship('Email', backref='user', lazy=True)
+	emails = db.relationship('Email', backref='users', lazy=True)
 
 
 class Email(db.Model):
-	__tablename__ = 'email'
+	__tablename__ = 'emails'
 
 	id = db.Column(db.Integer, primary_key=True)
 	message_id = db.Column(db.Text, nullable=False)
 	sender_email = db.Column(db.String(120), nullable=False)
 	body = db.Column(db.Text, nullable=False)
-	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
