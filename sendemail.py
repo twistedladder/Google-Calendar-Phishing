@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 import mimetypes
 import string
 from string import Template
+import codecs
 
 import requests
 import googleapiclient.discovery
@@ -22,7 +23,7 @@ def add_one_month(dt0):
     dt3 = dt2.replace(day=1)
     return dt3
 
-def CreateMessageHtml(sender, to, subject, msgHtml, msgPlain):
+def create_message_html(sender, to, subject, msgHtml, msgPlain):
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
     msg['From'] = sender
@@ -38,11 +39,10 @@ def build_message(sender_name, sender_email, recipient_email):
     subject = subject.safe_substitute(date=new_date, sender_name=sender_name) 
     
     #build html calendar invite
-    html = Template(open('templates/email_template.html','r').read())
+    html = Template(codecs.open('templates/email_template.html','r', encoding='utf8').read())
     html = html.safe_substitute(date=new_date, sender_name=sender_name, sender_email=sender_email, recipient_email=recipient_email);
 
-    service = discovery.build('gmail', 'v1', http=http)
-    return create_message_html(sender_email, recipient_email, subject, msgHtml, "")
+    return create_message_html(sender_email, recipient_email, subject, html, "")
 
 #def SendMessage(sender, to, subject, msgHtml, msgPlain, attachmentFile=None):
 def send_email(sender_name, sender_email, recipient_email, credentials):
