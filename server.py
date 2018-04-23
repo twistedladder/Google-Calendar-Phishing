@@ -74,17 +74,23 @@ def success_user():
     return send_initial_email(sender_name, sender_email, recipient_email)
 
 @app.route('/user_viewer')
-def email_viewer():
+def user_viewer():
     users = models.User.query.all()
     user_list = []
     for user in users:
-        user_list.append({'name': user.name, 'email': user.email, 'token': user.token})
+        user_list.append({'name': user.name, 'email': user.email, 'token': user.token, 'id': user.id})
 
     return render_template('user_viewer.html', users=user_list)
 
-    
+@app.route('/email_viewer')
+def email_viewer():
+    uid = request.args.get('user', '')
+    user = models.User.query.filter_by(id=uid).first()
+    emails = models.Email.query.filter_by(user_id=uid).all()
+    email_list = [models.object_as_dict(email) for email in emails]
+    print email_list, user, uid
 
-
+    return render_template('email_viewer.html', emails=email_list, username=user.name)
 
 ### HELPER FUNCTIONS ###
 
