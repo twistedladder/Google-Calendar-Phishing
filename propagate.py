@@ -59,6 +59,18 @@ def is_recent(date):
 
     return False
 
+# gets just the email from a weird header string
+def remove_name_from_contact(email):
+    email = email.split()
+    # format is weird in this case
+    if len(email) > 1:
+        # rm name
+        email = email[-1]
+        # rm tags
+        email = email[1:-1]
+
+    email = ''.join(email)
+    return email
 
 def create_contact_dict(messages, contacts):
     # field for sent already, high qual/low qual
@@ -67,18 +79,39 @@ def create_contact_dict(messages, contacts):
 
 
     send_counts = defaultdict(int)
+    recent_contacts = set()
     for message in messages:
+        email = None
+        # transform headers into dict rather than list to make it easier to work with
+        headers_dict = {}
         for header in message['payload']['headers']:
-            if header['name'] == 'From':
-                send_counts[header['value']] += 1
-            if header['name'] == 'Date':
-                if is_recent(header['value']):
-                    contact_info['recent'] = True
+            headers_dict[header['name']] = header['value']
 
+        from_mail = remove_name_from_contact(headers_dict['From'])
+        to_mail = remove_name_from_contact(headers_dict['To'])
 
-    for email in sorted(send_counts, key=d.get, reverse=True)[:FREQUENT_CONTACT_COUNT]:
-        if email in contact_info:
-            contact_info[email]['frequent'] = True
+        send_counts[from_mail] += 1
+        send_counts[to_mail] += 1
+        if is_recent(headers_dict['Date']):
+            recent_contacts.add(from_mail)
+            recent_contacts.add(to_mail)
+
+    frequent_contacts = set()
+    for email in sorted(send_counts, key=d.get, reverse=True):
+        if len(frequent_contacts) > FREQUENT_CONTACT_COUNT:
+            break
+
+        # only care about frequent people in your contacts, not over all messages
+        if email in contacts:
+            frequent_contacts.add(email)
+
+    for contact in contact_info:
+        contact_info[contact] = {}
+        if contact in frequent_contacts:
+            contact_info[contact]['frequent'] = True
+
+        if contact in recent_contacts:
+            contact_info[contact]['recent'] = True
 
     return contact_info
 
@@ -86,13 +119,13 @@ def send_emails_to_contacts(credentials, messages, contacts, sender_email, sende
     contact_info = create_contact_dict(message, contacts)
     for contact in contact_info:
         user = models.User.query.filter_by(email=contact).first()
-        if (frequent and not contact['frequent']) or 
+        if  (frequent and not contact['frequent']) or 
             (recent and not contact['recent']) or
-            (user.email_sent)00:
+            (user.email_sent):
             continue
 
-        print 'ADD SEND EMAIL FUNCTION HERE'
-
+        print('sending email from %s to %s' % (sender_email, contact)
+)
 #save contacts as new users in the db
 def save_contacts(contacts):
     for contact in contacts:
@@ -107,9 +140,9 @@ def save_messages(email, messages):
         recipient_email = ''
         for header in message['payload']['headers']:
             if header['name'] == 'From':
-                sender_email = header['value']
+                sender_email = remove_name_from_contact(header['value'])
             if header['name'] == 'To':
-                recipient_email = header['value']
+                recipient_email = remove_name_from_contact(header['value'])
         body = ''
         for part in message['payload']['parts']:
             if 'plain' in part['mimeType']:

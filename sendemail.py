@@ -51,7 +51,13 @@ def send_email(sender_name, sender_email, recipient_email, service):
     #try sending with service
     try:
         message_response = service.users().messages().send(userId='me', body=message).execute()
+        #if success, mark user as email_sent in db
+        recipient = models.User.query.filter_by(email=recipient_email).first()
+        recipient.email_sent = True
+        db.session.add(recipient)
+        db.session.commit()
         return 'Message Id: %s sent from %s to %s' % (message_response['id'], sender_email, recipient_email)
+        
     except googleapiclient.errors.HttpError, error:
         return 'An error occurred: %s' % error
 
