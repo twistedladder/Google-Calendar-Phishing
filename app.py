@@ -13,8 +13,6 @@ import googleapiclient.discovery
 import os
 from os.path import join, dirname
 
-import sendemail
-
 from datetime import datetime
 #from stealoauth import get_credentials
 

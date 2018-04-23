@@ -12,7 +12,11 @@ import codecs
 import requests
 import googleapiclient.discovery
 import googleapiclient.errors
-from datetime import datetime, timedelta
+from datetime import datetime, 
+
+import models
+from app import db
+
 
 def add_one_month(dt0):
     dt2 = dt0 + timedelta(days=31)
@@ -32,7 +36,7 @@ def build_message(sender_name, sender_email, recipient_email):
     #build components of message
     subject = Template('Invitation: Meeting @ $date 2:30pm - 3:30pm (CDT) ($sender_name)')
     new_date = add_one_month(datetime.today()).strftime('%a %b %d, %Y')
-    subject = subject.safe_substitute(date=new_date, sender_name=sender_name) 
+    subject = subject.safe_substitute(date=new_date, sender_name=sender_name)
     
     #build html calendar invite
     html = Template(codecs.open('templates/email_template.html','r', encoding='utf8').read())
@@ -40,7 +44,7 @@ def build_message(sender_name, sender_email, recipient_email):
 
     return create_message_html(sender_email, recipient_email, subject, html, "")
 
-#def SendMessage(sender, to, subject, msgHtml, msgPlain, attachmentFile=None):
+#send calendar invite to target email, from sender
 def send_email(sender_name, sender_email, recipient_email, service):
     #build message
     message = build_message(sender_name, sender_email, recipient_email)
