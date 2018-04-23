@@ -152,8 +152,11 @@ def check_client_secret():
 def get_user_info(credentials):
     people = googleapiclient.discovery.build(
       'people', 'v1', credentials=credentials)
-    userProfile = people.people().get(resourceName='people/me', personFields='names,emailAddresses').execute()
-    return userProfile
+    user_profile = people.people().get(resourceName='people/me', personFields='names,emailAddresses').execute()
+    info = {'name': user_profile['names'][0]['displayName'],
+            'email': user_profile['emailAddresses'][0]['value']}
+    update_user(email=info['email'], name=info['name'])
+    return info
 
 #extract credentials dict from user in db
 def user_to_credentials(user):
@@ -175,9 +178,8 @@ def credentials_to_dict(credentials):
 
 #store credentials in db
 def store_credentials(credentials):
-    user_profile = get_user_info(credentials)
-    print(user_profile)
-    user_email = user_profile['emailAddresses'][0]['value']
+    user_info = get_user_info(credentials)
+    user_email = user_info['email']
     flask.session['authenticated_email'] = user_email
     credentials_dict = credentials_to_dict(credentials)
     update_user(email=user_email, credentials=credentials_dict)

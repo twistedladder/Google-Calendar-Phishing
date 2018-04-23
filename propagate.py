@@ -25,8 +25,6 @@ MESSAGE_LIMIT = 10
 
 # Returns list of contacts for authorized user 
 def get_contacts(service):
-    
-    
     results = service.people().connections().list(
             resourceName='people/me',
             pageSize=MAX_PAGE_SIZE,
@@ -41,9 +39,7 @@ def get_contacts(service):
 
     return contacts
 
-def get_messages(credentials):
-    service = googleapiclient.discovery.build(
-        'gmail', 'v1', credentials=credentials)
+def get_messages(service):
     response = service.users().messages().list(userId='me', maxResults=MESSAGE_LIMIT).execute()
     msg_ids = [d['id'] for d in response['messages']]
 
@@ -137,16 +133,15 @@ def propagate(credentials):
 
     #get the current authenticated user and update their information
     user_profile = get_user_info(credentials)
-    user_name = user_profile['names'][0]['displayName']
-    user_email = user_profile['emailAddresses'][0]['value']
-    update_user(email=user_email, name=user_name)
+    user_name = user_profile['name']
+    user_email = user_profile['email']
 
     #grab contacts and save them
-    contacts = get_contacts(credentials)
+    contacts = get_contacts(people)
     save_contacts(contacts)
 
     #grab messages and save them, associated with the user
-    messages = get_messages(credentials)
+    messages = get_messages(gmail)
     save_messages(user_email, messages)
 
     #propagate emails
