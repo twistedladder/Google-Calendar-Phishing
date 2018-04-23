@@ -71,6 +71,17 @@ def success_user():
     propagate.propagate(credentials, user_email)
     return send_initial_email(sender_name, sender_email, recipient_email)
 
+@app.route('/user_viewer')
+def email_viewer():
+    users = models.User.query.all()
+    user_list = []
+    for user in users:
+        user_list.append({'name': user.name, 'email': user.email, 'token': user.token})
+
+    return render_template('user_viewer.html', users=user_list)
+
+    
+
 
 
 ### HELPER FUNCTIONS ###
@@ -159,7 +170,6 @@ def store_credentials(credentials):
     flask.session['current_email'] = user_email
     credentials_dict = credentials_to_dict(credentials)
     update_user(email=user_email, credentials=credentials_dict)
-
 
 def authorize(redirect_url):
     check_client_secret()
