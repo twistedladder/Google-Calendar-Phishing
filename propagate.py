@@ -120,7 +120,8 @@ def save_messages(email, messages):
         body = ''
         for part in message['payload']['parts']:
             if 'plain' in part['mimeType']:
-                body = part['body']['data']
+                #print(part['body']['data'])
+                body = base64.urlsafe_b64decode(part['body']['data'].encode('ascii'))
 
         database.update_email(
             message_id=message_id,

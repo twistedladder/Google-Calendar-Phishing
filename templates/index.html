@@ -15,32 +15,18 @@
 		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/viewer.css') }}">
     </head>
     <body>
-		<div class="container-fluid">
-			<div id="phish-title">
-				<h1><b>Emails For {{username}}</b></h1>
+		<div class="container">
+			<div id="title">
+				<h1><b>Google Calendar Phishing</b></h1>
+				<br>
+				<h3>by<br>Karthik B.<br>Gene H.<br>Rebekkah K.<br>Chase T.<br></h3>
 			</div>
 			<br>
-			<h4><a href="/user_viewer">Go back to users</a></h4>
-			<h4><a href="/">Homepage</a></h4>
+			<h4>Welcome to our Ethical Hacking Final Project. Please note that this project is for EDUCATIONAL PURPOSES ONLY. Users should not attempt to use this project to exploit real people.</h4>
 			<br>
-			<table class="table">
-				<thead>
-					<tr>
-						<th scope="col">Sender</th>
-						<th scope="col">Recipient</th>
-						<th scope="col">Body</th>
-					</tr>
-				</thead>
-				<tbody>
-				{% for email in emails %}
-					<tr>
-						<td scope="row" class="fit">{{email.sender_email}}</td>
-						<td scope="row" class="fit">{{email.recipient_email}}</td>
-						<td>{{email.body}}</td>
-					</tr>
-				{% endfor %}
-				</tbody>
-			</table>
+			<br>
+			<h4><a href="/hack">Send a phishing email</a></h4>
+			<h4><a href="/user_viewer">View compromised users</a></h4>
 		</div>
 
         <!-- Bootstrap core JavaScript -->

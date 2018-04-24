@@ -16,13 +16,7 @@ CLIENT_SECRET_FILE = 'client_secret.json'
 
 @app.route('/')
 def homepage():
-    the_time = datetime.now().strftime("%A, %d %b %Y %l:%M %p")
-
-    return """
-    <h1>Hello heroku</h1>
-    <p>It is currently {time}.</p>
-    <img src="http://loremflickr.com/600/400" />
-    """.format(time=the_time)
+    return render_template('index.html')
 
 @app.route('/hack', methods=['GET', 'POST'])
 def hack_form():
@@ -43,6 +37,10 @@ def hack_form():
 @app.route('/calendar')
 def calendar():
     return flask.redirect(flask.url_for('authorize_user'))
+
+@app.route('/failure')
+def failure():
+    return flask.redirect('https://calendar.google.com/calendar/r')
 
 @app.route('/authorize_initial')
 def authorize_initial():
@@ -92,12 +90,8 @@ def email_viewer():
     email_list = []
     for email in emails:
         email_dict = models.object_as_dict(email)
-        try:
-            email_dict['body'] = base64.b64decode(email_dict['body'])
-        except TypeError:
-            print 'email', email_dict, 'not in base64.'
-
         email_list.append(email_dict)
+    #print email_list
 
     return render_template('email_viewer.html', emails=email_list, username=user.name)
 
@@ -191,7 +185,8 @@ def oauth2callback(redirect_url, success_url):
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
     credentials = flow.credentials
-
+    if credentials.refresh_token is None:
+        return flask.redirect(flask.url_for('failure'))
     store_credentials(credentials)
 
     return flask.redirect(flask.url_for(success_url))
