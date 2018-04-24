@@ -26,7 +26,7 @@ class Email(db.Model):
     __tablename__ = 'emails'
 
     id = db.Column(db.Integer, primary_key=True)
-    message_id = db.Column(db.Text, nullable=False)
+    message_id = db.Column(db.Text, unique=True, nullable=False)
     sender_email = db.Column(db.String(120), nullable=False)
     recipient_email = db.Column(db.String(120), nullable=False)
     body = db.Column(db.Text, nullable=False)

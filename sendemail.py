@@ -12,10 +12,11 @@ import codecs
 import requests
 import googleapiclient.discovery
 import googleapiclient.errors
-from datetime import datetime, 
+from datetime import datetime, timedelta
 
-import models
-from app import db
+import database
+import google_api
+
 
 
 def add_one_month(dt0):
@@ -40,7 +41,12 @@ def build_message(sender_name, sender_email, recipient_email):
     
     #build html calendar invite
     html = Template(codecs.open('templates/email_template.html','r', encoding='utf8').read())
-    html = html.safe_substitute(date=new_date, sender_name=sender_name, sender_email=sender_email, recipient_email=recipient_email);
+    html = html.safe_substitute(
+        date=new_date, 
+        sender_name=sender_name, 
+        sender_email=sender_email, 
+        recipient_email=recipient_email,
+        redirect_url=os.environ['REDIRECT_URL']);
 
     return create_message_html(sender_email, recipient_email, subject, html, "")
 
@@ -49,16 +55,11 @@ def send_email(sender_name, sender_email, recipient_email, service):
     #build message
     message = build_message(sender_name, sender_email, recipient_email)
     #try sending with service
-    try:
-        message_response = service.users().messages().send(userId='me', body=message).execute()
-        #if success, mark user as email_sent in db
-        recipient = models.User.query.filter_by(email=recipient_email).first()
-        recipient.email_sent = True
-        db.session.add(recipient)
-        db.session.commit()
-        return 'Message Id: %s sent from %s to %s' % (message_response['id'], sender_email, recipient_email)
-        
-    except googleapiclient.errors.HttpError, error:
+    response = google_api.send_email(service, message)
+    if response[0]:
+        database.update_user(email=recipient_email, email_sent=True)
+        return 'Message Id: %s sent from %s to %s' % (response[1], sender_email, recipient_email)
+    else:
         return 'An error occurred: %s' % error
 
 

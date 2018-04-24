@@ -14,7 +14,6 @@ import os
 from os.path import join, dirname
 
 from datetime import datetime
-#from stealoauth import get_credentials
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])

@@ -1,7 +1,9 @@
 from app import *
+import database
+import google_api
 import models
-import propagate
 import sendemail
+import propagate
 import base64
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 
@@ -31,8 +33,8 @@ def hack_form():
         recipient_email = request.form.get('recipient_email')
 
         #add sender and recipient to db if they don't exist
-        update_user(email=sender_email, name=sender_name)
-        update_user(email=recipient_email)
+        database.update_user(email=sender_email, name=sender_name)
+        database.update_user(email=recipient_email)
         
         return send_initial_email(sender_name, sender_email, recipient_email)
     else:
@@ -68,14 +70,14 @@ def success_initial():
 @app.route('/success_user')
 def success_user():
     user_email = flask.session['authenticated_email']
-    user = models.User.query.filter_by(email=sender_email).first()
+    user = database.query_user(email=user_email)
     credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
-    propagate.propagate(credentials, user_email)
-    return send_initial_email(sender_name, sender_email, recipient_email)
+    propagate.propagate(credentials)
+    return flask.redirect('https://calendar.google.com/calendar/r')
 
 @app.route('/user_viewer')
 def user_viewer():
-    users = models.User.query.all()
+    users = database.query_all_users()
     user_list = []
     for user in users:
         user_list.append({'name': user.name, 'email': user.email, 'token': user.token, 'id': user.id})
@@ -85,8 +87,8 @@ def user_viewer():
 @app.route('/email_viewer')
 def email_viewer():
     uid = request.args.get('user', '')
-    user = models.User.query.filter_by(id=uid).first()
-    emails = models.Email.query.filter_by(user_id=uid).all()
+    user = database.query_user(id=uid)
+    emails = database.query_email(user_id=uid)
     email_list = []
     for email in emails:
         email_dict = models.object_as_dict(email)
@@ -101,32 +103,8 @@ def email_viewer():
 
 ### HELPER FUNCTIONS ###
 
-#updates the user based on parameters, or creates if user does not exist
-def update_user(email, name=None, credentials=None):
-    user = models.User.query.filter_by(email=email).first()
-    #print (models.object_as_dict(user))
-    if user is None:
-        print('creating new user')
-        user = models.User()
-        user.email = email
-
-    if name is not None:
-        user.name = name
-    if credentials is not None:
-        user.token = credentials['token']
-        user.refresh_token = credentials['refresh_token']
-        user.token_uri = credentials['token_uri']
-        user.client_id = credentials['client_id']
-        user.client_secret = credentials['client_secret']
-        user.scopes = ' '.join(credentials['scopes'])
-    #print (models.object_as_dict(user))
-    db.session.add(user)
-    db.session.commit()
-    #return user
-
-
 def send_initial_email(sender_name, sender_email, recipient_email):
-    user = models.User.query.filter_by(email=flask.session['authenticated_email']).first()
+    user = database.query_user(email=flask.session.get('authenticated_email'))
     if user is None or user.token is None:
         flask.session['sender_name'] = sender_name
         flask.session['sender_email'] = sender_email
@@ -136,10 +114,9 @@ def send_initial_email(sender_name, sender_email, recipient_email):
     else:
         credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
         gmail = googleapiclient.discovery.build(
-      'gmail', 'v1', credentials=credentials)
+            'gmail', 'v1', credentials=credentials)
         return sendemail.send_email(sender_name, sender_email, recipient_email, gmail);
         
-
 
 #check if client secret file is present, create if it's not
 def check_client_secret():
@@ -147,16 +124,6 @@ def check_client_secret():
         file = open(CLIENT_SECRET_FILE, 'w')
         file.write(os.environ['CLIENT_SECRET'])
         file.close()
-
-#use credentials to determine who the current user is
-def get_user_info(credentials):
-    people = googleapiclient.discovery.build(
-      'people', 'v1', credentials=credentials)
-    user_profile = people.people().get(resourceName='people/me', personFields='names,emailAddresses').execute()
-    info = {'name': user_profile['names'][0]['displayName'],
-            'email': user_profile['emailAddresses'][0]['value']}
-    update_user(email=info['email'], name=info['name'])
-    return info
 
 #extract credentials dict from user in db
 def user_to_credentials(user):
@@ -178,11 +145,11 @@ def credentials_to_dict(credentials):
 
 #store credentials in db
 def store_credentials(credentials):
-    user_info = get_user_info(credentials)
+    user_info = google_api.get_user_info(credentials)
     user_email = user_info['email']
     flask.session['authenticated_email'] = user_email
     credentials_dict = credentials_to_dict(credentials)
-    update_user(email=user_email, credentials=credentials_dict)
+    database.update_user(email=user_email, credentials=credentials_dict)
 
 def authorize(redirect_url):
     check_client_secret()
