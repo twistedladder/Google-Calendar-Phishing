@@ -117,12 +117,12 @@ def send_initial_email(sender_name, sender_email, recipient_email):
         return sendemail.send_email(sender_name, sender_email, recipient_email, gmail);
         
 
-#check if client secret file is present, create if it's not
-def check_client_secret():
-    if not os.path.isfile(os.path.relpath(CLIENT_SECRET_FILE)):
-        file = open(CLIENT_SECRET_FILE, 'w')
-        file.write(os.environ['CLIENT_SECRET'])
-        file.close()
+#write client secret file
+def write_client_secret():
+    print('writing client secret file')
+    file = open(CLIENT_SECRET_FILE, 'w')
+    file.write(os.environ['CLIENT_SECRET'])
+    file.close()
 
 #extract credentials dict from user in db
 def user_to_credentials(user):
@@ -152,13 +152,12 @@ def store_credentials(credentials):
     print('credentials obtained for %s' % user_email)
 
 def authorize(redirect_url):
-    check_client_secret()
 
     # Create flow instance to manage the OAuth 2.0 Authorization Grant Flow steps.
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         CLIENT_SECRET_FILE, scopes=SCOPES)
 
-    flow.redirect_uri = flask.url_for(redirect_url, _external=True,)
+    flow.redirect_uri = flask.url_for(redirect_url, _external=True, _scheme='https')
 
     authorization_url, state = flow.authorization_url(
         # Enable offline access so that you can refresh an access token without
@@ -174,14 +173,13 @@ def authorize(redirect_url):
 
 
 def oauth2callback(redirect_url, success_url):
-    check_client_secret()
     # Specify the state when creating the flow in the callback so that it can
     # verified in the authorization server response.
     state = flask.session['state']
 
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         CLIENT_SECRET_FILE, scopes=SCOPES, state=state)
-    flow.redirect_uri = flask.url_for(redirect_url, _external=True)
+    flow.redirect_uri = flask.url_for(redirect_url, _external=True, _scheme='https')
 
     # Use the authorization server's response to fetch the OAuth 2.0 tokens.
     authorization_response = flask.request.url
@@ -206,4 +204,5 @@ if __name__ == '__main__':
 
     # Specify a hostname and port that are set as a valid redirect URI
     # for your API project in the Google API Console.
+    write_client_secret() 
     app.run(debug=True, threaded=True)
