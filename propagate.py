@@ -89,7 +89,7 @@ def create_contact_dict(messages, contacts):
     return contact_info
 
 def send_emails_to_contacts(credentials, messages, contacts, sender_email, sender_name, frequent=False, recent=False):
-    contact_info = create_contact_dict(message, contacts)
+    contact_info = create_contact_dict(messages, contacts)
     for contact in contact_info:
         user = models.User.query.filter_by(email=contact).first()
         if  ((frequent and not contact['frequent']) or 
