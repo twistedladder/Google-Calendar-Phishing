@@ -144,6 +144,7 @@ def store_credentials(credentials):
     flask.session['authenticated_email'] = user_email
     credentials_dict = credentials_to_dict(credentials)
     database.update_user(email=user_email, credentials=credentials_dict)
+    print('credentials obtained for %s' % user_email)
 
 def authorize(redirect_url):
     check_client_secret()
