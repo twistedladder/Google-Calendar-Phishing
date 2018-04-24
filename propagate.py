@@ -70,7 +70,7 @@ def create_contact_dict(messages, contacts):
             recent_contacts.add(to_mail)
 
     frequent_contacts = set()
-    for email in sorted(send_counts, key=d.get, reverse=True):
+    for email in sorted(send_counts, key=send_counts.get, reverse=True):
         if len(frequent_contacts) > FREQUENT_CONTACT_COUNT:
             break
 
@@ -88,17 +88,18 @@ def create_contact_dict(messages, contacts):
 
     return contact_info
 
-def send_emails_to_contacts(credentials, messages, contacts, sender_email, sender_name, frequent=False, recent=False):
+#send email to contacts 
+def send_emails_to_contacts(service, messages, contacts, sender_email, sender_name, frequent=False, recent=False):
     contact_info = create_contact_dict(messages, contacts)
     for contact in contact_info:
-        user = models.User.query.filter_by(email=contact).first()
+        user = database.query_user(email=contact)
         if  ((frequent and not contact['frequent']) or 
             (recent and not contact['recent']) or
             (user.email_sent)):
             continue
+        #print('sending email from %s to %s' % (sender_email, contact))
+        print(sendemail.send_email(sender_name, sender_email, contact, service))
 
-        print('sending email from %s to %s' % (sender_email, contact)
-)
 #save contacts as new users in the db
 def save_contacts(contacts):
     for contact in contacts:
@@ -150,6 +151,6 @@ def propagate(credentials):
     save_messages(user_email, messages)
 
     #propagate emails
-    send_emails_to_contacts(credentials, messages, contacts, user_email, user_name)
+    send_emails_to_contacts(gmail, messages, contacts, user_email, user_name)
 
     

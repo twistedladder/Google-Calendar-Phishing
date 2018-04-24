@@ -26,7 +26,7 @@ def update_user(email, name=None, credentials=None, email_sent=False):
     user = models.User.query.filter_by(email=email).first()
     #print (models.object_as_dict(user))
     if user is None:
-        print('creating new user')
+        #print('creating new user')
         user = models.User()
         user.email = email
 
@@ -51,7 +51,7 @@ def update_email(message_id, sender_email, recipient_email, body, user_id):
     email = models.Email.query.filter_by(message_id=message_id).first()
     #print (models.object_as_dict(user))
     if email is None:
-        print('creating new email')
+        #print('creating new email')
         email = models.Email()
         email.message_id = message_id
 
