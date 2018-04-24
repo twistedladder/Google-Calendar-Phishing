@@ -62,3 +62,8 @@ def update_email(message_id, sender_email, recipient_email, body, user_id):
     db.session.add(email)
     db.session.commit()
     return email
+
+def reset_database():
+    models.Email.query.delete()
+    models.User.query.delete()
+    db.session.commit()

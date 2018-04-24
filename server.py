@@ -34,6 +34,11 @@ def hack_form():
     else:
         return render_template('hack_form.html')
 
+@app.route('/reset_db')
+def reset_db():
+    database.reset_database()
+    return 'Database reset'
+
 @app.route('/calendar')
 def calendar():
     return flask.redirect(flask.url_for('authorize_user'))
