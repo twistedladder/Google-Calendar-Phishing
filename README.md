@@ -16,6 +16,8 @@ FLASK_SECRET_KEY: This can be any secret key you choose. Flask just uses it to m
 
 DATABASE_URL: This is the complete url to the database, which must be a postgresql database. For development, you'll likely be connecting to a local database with the format 'postgresql://[user]:[password]@localhost:5432/[database_name]'
 
+REDIRECT_URL: This is the url that the OAuth protocol should redirect to after it authenticates with Google. For development, this should probably be http://localhost:5000/calendar.
+
 
 To install Python dependencies, run the following command:
 ```
