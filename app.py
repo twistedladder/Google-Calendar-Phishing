@@ -15,6 +15,8 @@ from os.path import join, dirname
 
 from datetime import datetime
 
+CLIENT_SECRET_FILE = 'client_secret.json'
+
 #write client secret file
 def write_client_secret():
     print('writing client secret file')
