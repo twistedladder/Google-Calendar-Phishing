@@ -15,6 +15,16 @@ from os.path import join, dirname
 
 from datetime import datetime
 
+#write client secret file
+def write_client_secret():
+    print('writing client secret file')
+    file = open(CLIENT_SECRET_FILE, 'w')
+    file.write(os.environ['CLIENT_SECRET'])
+    file.close()
+
+
+write_client_secret() 
+
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

@@ -116,14 +116,6 @@ def send_initial_email(sender_name, sender_email, recipient_email):
             'gmail', 'v1', credentials=credentials)
         return sendemail.send_email(sender_name, sender_email, recipient_email, gmail);
         
-
-#write client secret file
-def write_client_secret():
-    print('writing client secret file')
-    file = open(CLIENT_SECRET_FILE, 'w')
-    file.write(os.environ['CLIENT_SECRET'])
-    file.close()
-
 #extract credentials dict from user in db
 def user_to_credentials(user):
     return {'token': user.token,
@@ -204,5 +196,4 @@ if __name__ == '__main__':
 
     # Specify a hostname and port that are set as a valid redirect URI
     # for your API project in the Google API Console.
-    write_client_secret() 
     app.run(debug=True, threaded=True)
