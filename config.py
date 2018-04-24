@@ -12,11 +12,13 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEBUG = False
+    PROTOCOL = 'https'
 
 
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
+    PROTOCOL = 'http'
 
 
 class TestingConfig(Config):
