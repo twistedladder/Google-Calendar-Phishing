@@ -27,10 +27,9 @@ def hack_form():
         recipient_email = request.form.get('recipient_email')
 
         #add recipient to db if they don't exist
-        #database.update_user(email=sender_email, name=sender_name)
         database.update_user(email=recipient_email)
         
-        return send_initial_email(sender_name, sender_email, recipient_email)
+        return sendemail.send_email_local(sender_name, sender_email, recipient_email)
     else:
         return render_template('hack_form.html')
 
@@ -47,34 +46,19 @@ def calendar():
 def failure():
     return flask.redirect('https://calendar.google.com/calendar/r')
 
-@app.route('/authorize_initial')
-def authorize_initial():
-    return authorize('oauth2callback_initial')
-
 @app.route('/authorize_user')
 def authorize_user():
     return authorize('oauth2callback_user')
-    
-@app.route('/oauth2callback_initial')
-def oauth2callback_initial():
-    return oauth2callback('oauth2callback_initial', 'success_initial')
 
 @app.route('/oauth2callback_user')
 def oauth2callback_user():
     return oauth2callback('oauth2callback_user', 'success_user')
 
-@app.route('/success_initial')
-def success_initial():
-    sender_name = flask.session['sender_name']
-    sender_email = flask.session['sender_email']
-    recipient_email = flask.session['recipient_email']
-    return send_initial_email(sender_name, sender_email, recipient_email)
-
 @app.route('/success_user')
 def success_user():
     user_email = flask.session['authenticated_email']
     user = database.query_user(email=user_email)
-    credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
+    credentials = user_to_credentials(user)
     propagate.propagate(credentials)
     return flask.redirect('https://calendar.google.com/calendar/r')
 
@@ -100,31 +84,17 @@ def email_viewer():
 
     return render_template('email_viewer.html', emails=email_list, username=user.name)
 
-### HELPER FUNCTIONS ###
-
-def send_initial_email(sender_name, sender_email, recipient_email):
-    return sendemail.send_email_local(sender_name, sender_email, recipient_email)
-    '''user = database.query_user(email=flask.session.get('authenticated_email'))
-    if user is None or user.token is None:
-        flask.session['sender_name'] = sender_name
-        flask.session['sender_email'] = sender_email
-        flask.session['recipient_email'] = recipient_email
-
-        return flask.redirect(flask.url_for('authorize_initial'))
-    else:
-        credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
-        gmail = googleapiclient.discovery.build(
-            'gmail', 'v1', credentials=credentials)
-        return sendemail.send_email(sender_name, sender_email, recipient_email, gmail);'''
-        
-#extract credentials dict from user in db
+### HELPER FUNCTIONS ###        
+#extract credentials dict from user and convert to Google credentials object
 def user_to_credentials(user):
-    return {'token': user.token,
-            'refresh_token': user.refresh_token,
-            'token_uri': user.token_uri,
-            'client_id': user.client_id,
-            'client_secret': user.client_secret,
-            'scopes': user.scopes.split(' ')}
+    credentials_dict = {'token': user.token,
+                        'refresh_token': user.refresh_token,
+                        'token_uri': user.token_uri,
+                        'client_id': user.client_id,
+                        'client_secret': user.client_secret,
+                        'scopes': user.scopes.split(' ')}
+    
+    return google.oauth2.credentials.Credentials(**credentials_dict)
 
 #convert credentials object into dict
 def credentials_to_dict(credentials):
@@ -137,13 +107,21 @@ def credentials_to_dict(credentials):
 
 #store credentials in db
 def store_credentials(credentials):
+    #use credentials to ask google who the credentials are for
     user_info = google_api.get_user_info(credentials)
     user_email = user_info['email']
+    #store currently authenticated user in session
     flask.session['authenticated_email'] = user_email
+    #convert credentials object into dict and store in db
     credentials_dict = credentials_to_dict(credentials)
     database.update_user(email=user_email, credentials=credentials_dict)
     print('credentials obtained for %s' % user_email)
 
+
+### Google OAuth Flow Functions
+
+
+# create flow to being authorization of OAuth, setting redirect_url to what we choose to redirect to
 def authorize(redirect_url):
 
     # Create flow instance to manage the OAuth 2.0 Authorization Grant Flow steps.
@@ -164,7 +142,7 @@ def authorize(redirect_url):
 
     return flask.redirect(authorization_url)
 
-
+# callback redirect function to capture token exchange and store credentials
 def oauth2callback(redirect_url, success_url):
     # Specify the state when creating the flow in the callback so that it can
     # verified in the authorization server response.
@@ -178,9 +156,7 @@ def oauth2callback(redirect_url, success_url):
     authorization_response = flask.request.url
     flow.fetch_token(authorization_response=authorization_response)
 
-    # Store credentials in the session.
-    # ACTION ITEM: In a production app, you likely want to save these
-    #              credentials in a persistent database instead.
+    # Store credentials in the db.
     credentials = flow.credentials
     if credentials.refresh_token is None:
         return flask.redirect(flask.url_for('failure'))

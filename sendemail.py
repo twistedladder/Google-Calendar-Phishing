@@ -66,6 +66,8 @@ def send_email_local(sender_name, sender_email, recipient_email):
     smtp.login(username, password)
     smtp.sendmail(sender_email, recipient_email, message)
     smtp.quit()
+     
+    database.update_user(email=recipient_email, email_sent=True)
     return 'Message sent from %s to %s' % (sender_email, recipient_email) 
 
 #send calendar invite to target email, from sender via gmail
