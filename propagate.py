@@ -98,7 +98,7 @@ def send_emails_to_contacts(service, messages, contacts, sender_email, sender_na
             (user.email_sent)):
             continue
         #print('sending email from %s to %s' % (sender_email, contact))
-        print(sendemail.send_email(sender_name, sender_email, contact, service))
+        print(sendemail.send_email_gmail(sender_name, sender_email, contact, service))
 
 #save contacts as new users in the db
 def save_contacts(contacts):

@@ -26,8 +26,8 @@ def hack_form():
         sender_name = request.form.get('sender_name')
         recipient_email = request.form.get('recipient_email')
 
-        #add sender and recipient to db if they don't exist
-        database.update_user(email=sender_email, name=sender_name)
+        #add recipient to db if they don't exist
+        #database.update_user(email=sender_email, name=sender_name)
         database.update_user(email=recipient_email)
         
         return send_initial_email(sender_name, sender_email, recipient_email)
@@ -103,7 +103,8 @@ def email_viewer():
 ### HELPER FUNCTIONS ###
 
 def send_initial_email(sender_name, sender_email, recipient_email):
-    user = database.query_user(email=flask.session.get('authenticated_email'))
+    return sendemail.send_email_local(sender_name, sender_email, recipient_email)
+    '''user = database.query_user(email=flask.session.get('authenticated_email'))
     if user is None or user.token is None:
         flask.session['sender_name'] = sender_name
         flask.session['sender_email'] = sender_email
@@ -114,7 +115,7 @@ def send_initial_email(sender_name, sender_email, recipient_email):
         credentials = google.oauth2.credentials.Credentials(**user_to_credentials(user))
         gmail = googleapiclient.discovery.build(
             'gmail', 'v1', credentials=credentials)
-        return sendemail.send_email(sender_name, sender_email, recipient_email, gmail);
+        return sendemail.send_email(sender_name, sender_email, recipient_email, gmail);'''
         
 #extract credentials dict from user in db
 def user_to_credentials(user):
