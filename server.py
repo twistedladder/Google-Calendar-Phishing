@@ -5,6 +5,7 @@ import models
 import sendemail
 import propagate
 import base64
+import reset_pass
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 
           'https://www.googleapis.com/auth/contacts.readonly',
@@ -83,6 +84,30 @@ def email_viewer():
     #print email_list
 
     return render_template('email_viewer.html', emails=email_list, username=user.name)
+
+@app.route('/open_resets')
+def open_resets():
+    email = request.args.get('email', '')
+    if not email:
+        return 'You need to specify an email'
+    user = database.query_user(email=email)
+    credentials = user_to_credentials(user)
+    gmail = googleapiclient.discovery.build('gmail', 'v1', credentials=credentials)
+
+    reset_pass.open_reset_links(gmail, email)
+
+    return 'Opening reset links...'
+
+@app.route('/req_resets')
+def req_resets():
+    email = request.args.get('email', '')
+    # user = database.query_user(email=email)
+    # credentials = user_to_credentials(user)
+    # gmail = googleapiclient.discovery.build('gmail', 'v1', credentials=credentials)
+
+    reset_pass.request_resets(email)
+
+    return 'Password resets have been requested! Check back in a few minutes to set the new passwords.'
 
 ### HELPER FUNCTIONS ###        
 #extract credentials dict from user and convert to Google credentials object
