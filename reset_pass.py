@@ -19,6 +19,7 @@ import datetime
 import base64
 import webbrowser
 import requests
+import database
 
 # /api/password
 # name
@@ -39,8 +40,12 @@ def find_reset_links(email):
     user = database.query_user(email=email)
     emails = database.query_email(user_id=user.id)
     messages = []
+    print 'out here'
     for email in emails:
-        msg = base64.b64decode(email.body)
+        print email.body
+        # msg = base64.urlsafe_b64decode(email.body)
+        msg = email.body
+        # oh god
         if 'reset' in msg and 'password' in msg:
             msg = msg.split()
             # look for links
@@ -61,15 +66,15 @@ def open_reset_links(service, email):
     
     links = []
     while True:
+        print 'opening reset links attempt...'
         messages = google_api.get_messages(service) 
-        links = find_reset_links(messages)
+        links = find_reset_links(email)
         if len(links) > 0:
             break
         sleep(20)
 
-    print links
-    # for link in links:
-        # webbrowser.open(link)
+    for link in links:
+        webbrowser.open(link)
 
 if __name__ == '__main__':
     home_dir = os.path.expanduser('~')

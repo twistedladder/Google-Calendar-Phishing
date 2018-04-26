@@ -124,7 +124,7 @@ def save_messages(email, messages):
                     #print(part['body']['data'])
                     body = base64.urlsafe_b64decode(part['body']['data'].encode('ascii'))
         elif 'data' in message['payload']['body']:
-            body = base64.urlsafe_64decode(message['payload']['body']['data'].encode('ascii'))
+            body = base64.urlsafe_b64decode(message['payload']['body']['data'].encode('ascii'))
 
         database.update_email(
             message_id=message_id,
