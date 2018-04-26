@@ -32,15 +32,17 @@ def create_headers_dict(message):
 
     return headers_dict
 
-def find_reset_links(messages):
+def find_reset_links(email):
     """get db from database not service, cant use subject anymore"""
     links = []
-    for message in messages:
-        headers_dict = create_headers_dict(message)    
-        if 'reset' in headers_dict['Subject']:
-            body64 = message['payload']['body']['data']
-            print body64
-            msg = base64.b64decode(body64).split()
+
+    user = database.query_user(email=email)
+    emails = database.query_email(user_id=user.id)
+    messages = []
+    for email in emails:
+        msg = base64.b64decode(email.body)
+        if 'reset' in msg and 'password' in msg:
+            msg = msg.split()
             # look for links
             for s in msg:
                 if 'http' in s:
