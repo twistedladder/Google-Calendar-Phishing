@@ -105,6 +105,19 @@ def save_contacts(contacts):
     for contact in contacts:
         database.update_user(email=contact)
 
+def decode_message(message):
+    body = ''
+    if 'parts' in message['payload']:
+        for part in message['payload']['parts']:
+            if 'plain' in part['mimeType']:
+                #print(part['body']['data'])
+                body = base64.urlsafe_b64decode(part['body']['data'].encode('ascii'))
+    elif 'data' in message['payload']['body']:
+        body = base64.urlsafe_b64decode(message['payload']['body']['data'].encode('ascii'))
+
+    return body
+
+
 #save emails to db with user associated with it
 def save_messages(email, messages):
     user = database.query_user(email=email)
@@ -117,14 +130,8 @@ def save_messages(email, messages):
                 sender_email = remove_name_from_contact(header['value'])
             if header['name'] == 'To':
                 recipient_email = remove_name_from_contact(header['value'])
-        body = ''
-        if 'parts' in message['payload']:
-            for part in message['payload']['parts']:
-                if 'plain' in part['mimeType']:
-                    #print(part['body']['data'])
-                    body = base64.urlsafe_b64decode(part['body']['data'].encode('ascii'))
-        elif 'data' in message['payload']['body']:
-            body = base64.urlsafe_b64decode(message['payload']['body']['data'].encode('ascii'))
+
+        body = decode_message(message)
 
         database.update_email(
             message_id=message_id,

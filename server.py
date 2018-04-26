@@ -6,6 +6,7 @@ import sendemail
 import propagate
 import base64
 import reset_pass
+from flask import flash, url_for, redirect
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 
           'https://www.googleapis.com/auth/contacts.readonly',
@@ -95,8 +96,8 @@ def open_resets():
     gmail = googleapiclient.discovery.build('gmail', 'v1', credentials=credentials)
 
     reset_pass.open_reset_links(gmail, email)
-
-    return 'Opening reset links...'
+    flash('Opening reset links...')
+    return redirect(url_for('user_viewer')) 
 
 @app.route('/req_resets')
 def req_resets():
@@ -107,7 +108,9 @@ def req_resets():
 
     reset_pass.request_resets(email)
 
-    return 'Password resets have been requested! Check back in a few minutes to set the new passwords.'
+    flash('Password resets have been requested! Check back in a few minutes to set the new passwords.')
+    return redirect(url_for('user_viewer')) 
+
 
 ### HELPER FUNCTIONS ###        
 #extract credentials dict from user and convert to Google credentials object

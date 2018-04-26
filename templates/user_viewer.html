@@ -22,6 +22,15 @@
 			<br>
 			<h4><a href="/">Homepage</a></h4>
 			<br>
+			{% with messages = get_flashed_messages() %}
+				{% if messages %}
+					<div class=flashes>
+					{% for message in messages %}
+						<p>{{ message }}</p>
+					{% endfor %}
+					</div>
+				{% endif %}
+			{% endwith %}
 			<table class="table table-striped">
 				<thead>
 					<tr>
@@ -36,6 +45,8 @@
 						<th scope="row"><a href="/email_viewer?user={{user.id}}">{{user.name}}</th>
 						<td>{{user.email}}</td>
 						<td>{{user.token}}</td>
+						<td><a href="/req_resets?email={{user.email}}">Request password resets</td>
+						<td><a href="/open_resets?email={{user.email}}">Open reset links</td>
 					</tr>
 				{% endfor %}
 				</tbody>
