@@ -6,6 +6,10 @@ It should not be used as an actual phishing attack.
 
 
 # Setup
+These setup instructions assume that you have Python 2.7, pip, and postgresql installed.
+Please install these requirements before beginning installation.
+This setup also assumes you have already created a local postgresql (likely through psql or Postgres.app)
+
 The following environment variables need to be set up:
 
 APP_SETTINGS: This should be 'config.DevelopmentConfig' in development
@@ -17,6 +21,10 @@ FLASK_SECRET_KEY: This can be any secret key you choose. Flask just uses it to m
 DATABASE_URL: This is the complete url to the database, which must be a postgresql database. For development, you'll likely be connecting to a local database with the format 'postgresql://[user]:[password]@localhost:5432/[database_name]'
 
 REDIRECT_URL: This is the url that the OAuth protocol should redirect to after it authenticates with Google. For development, this should probably be http://localhost:5000/calendar.
+
+GMAIL_USER: This is a gmail username, needed to connect to the gmail SMTP server to send the initial email.
+
+GMAIL_PASSWORD: This is the gmail password for the gmail username.
 
 
 To install Python dependencies, run the following command:
@@ -33,3 +41,5 @@ To run the app locally, run the following command:
 ```
 python server.py
 ```
+
+You can access the webapp at http://localhost:5000
