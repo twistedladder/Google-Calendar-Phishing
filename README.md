@@ -43,3 +43,4 @@ python server.py
 ```
 
 You can access the webapp at http://localhost:5000
+Enjoy this amazing project :)
